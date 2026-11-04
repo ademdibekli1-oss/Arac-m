@@ -1067,5 +1067,33 @@ $('apkZipPwa').onclick = async () => {
 };
 
 </script>
+  // URL ile şablon içe aktarma
+(function(){
+  const p = new URLSearchParams(location.search);
+  const imp = p.get('import');
+  if(!imp) return;
+  try{
+    const data = JSON.parse(decodeURIComponent(escape(atob(imp))));
+    const arr = Array.isArray(data) ? data : [data];
+    if(!arr.length || !arr[0].name) return;
+    const n = arr[0].name.slice(0, 40);
+    sets[n] = arr.map(x => ({
+      id: (x.name||'sablon').toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-'+Math.random().toString(36).slice(2,7),
+      on: true,
+      name: String(x.name||'Şablon').slice(0,60),
+      target: x.target || '*.html',
+      action: x.action || 'ins-before',
+      kind: x.kind || 'js',
+      find: String(x.find||''),
+      content: String(x.content||''),
+      all: false
+    }));
+    cur = n;
+    save();
+    refreshAll();
+    show('v-patch');
+    alert('✅ "'+n+'" setine '+arr.length+' şablon aktarıldı.');
+  }catch(e){ console.warn('Şablon aktarılamadı:', e); }
+})();
 </body>
 </html> 
