@@ -2,488 +2,994 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<meta name="theme-color" content="#0a1929">
-<title>Araç-m · HTML Görüntüleyici & APK Dönüştürücü</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Güvenli Yama Aracı</title>
 <style>
-  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  :root{--bg:#0a1929;--bg2:#0f2438;--bg3:#163048;--line:#1f3d5c;--line2:#2d567a;
-    --tx:#e0e8f0;--tx2:#8ba3bd;--tx3:#5a7a9a;--gold:#f0b429;--red:#e53e3e;
-    --green:#38a169;--blue:#3182ce;--purple:#805ad5;--code-bg:#05101c}
-  html,body{margin:0;padding:0;background:var(--bg);color:var(--tx);
-    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-    -webkit-font-smoothing:antialiased}
-  body{min-height:100vh;padding-bottom:40px}
-  header{background:linear-gradient(135deg,#0f2438,#1a3a5c);border-bottom:2px solid var(--gold);
-    padding:14px 16px 12px;position:sticky;top:0;z-index:50;box-shadow:0 4px 20px rgba(0,0,0,.5)}
-  header h1{margin:0 0 4px;font-size:20px;letter-spacing:.5px}
-  header h1 span{color:var(--gold)}
-  header .sub{font-size:12px;color:var(--tx2)}
-  nav{display:flex;gap:4px;overflow-x:auto;padding:0;border-bottom:1px solid var(--line);
-    background:var(--bg2);scrollbar-width:none;position:sticky;top:62px;z-index:40}
-  nav::-webkit-scrollbar{display:none}
-  nav button{flex:1 0 auto;padding:12px 14px;background:none;border:none;
-    color:var(--tx2);font-size:13px;font-weight:600;cursor:pointer;
-    border-bottom:3px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s}
-  nav button:hover{color:var(--tx)}
-  nav button.on{color:var(--gold);border-bottom-color:var(--gold)}
-  main{max-width:900px;margin:0 auto;padding:16px}
-  .card{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:14px}
-  .card h2{margin:0 0 10px;font-size:16px;color:var(--gold)}
-  .card h3{margin:12px 0 8px;font-size:14px}
-  .card h3:first-child{margin-top:0}
-  .card p{margin:6px 0;font-size:13px;line-height:1.55;color:var(--tx2)}
-  .dim{color:var(--tx3);font-size:12px}
-  .ok{color:var(--green)}.bad{color:var(--red)}.gold{color:var(--gold)}
-  .btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;
-    padding:10px 16px;border:1px solid var(--line2);border-radius:8px;
-    background:var(--bg3);color:var(--tx);font-size:13px;font-weight:600;
-    cursor:pointer;min-height:40px;transition:transform .08s,background .15s;text-decoration:none}
-  .btn:hover{background:var(--line)}
-  .btn:active{transform:scale(.97)}
-  .btn.primary{background:var(--gold);color:#0a1929;border-color:var(--gold)}
-  .btn.primary:hover{background:#f7c948}
-  .btn.danger{background:var(--red);color:#fff;border-color:var(--red)}
-  .btn.success{background:var(--green);color:#fff;border-color:var(--green)}
-  .btn.info{background:var(--blue);color:#fff;border-color:var(--blue)}
-  .btn:disabled{opacity:.4;cursor:not-allowed}
-  .btn.sm{padding:6px 12px;min-height:32px;font-size:12px}
-  .btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-  .row{display:flex;gap:10px;align-items:center;margin:8px 0;flex-wrap:wrap}
-  .row>label{flex:1;min-width:120px;font-size:13px;color:var(--tx2)}
-  input[type=text],input[type=color],select,textarea{padding:10px 12px;
-    border:1px solid var(--line2);border-radius:8px;background:var(--bg3);
-    color:var(--tx);font-family:inherit;font-size:14px;min-height:40px;width:100%}
-  input[type=color]{min-width:60px;max-width:80px;padding:4px}
-  textarea{font-family:ui-monospace,'Courier New',monospace;font-size:13px}
-  input:focus,select:focus,textarea:focus{outline:2px solid var(--gold);outline-offset:-1px}
-  .grid{display:grid;gap:10px}
-  .grid.two{grid-template-columns:1fr 1fr}
-  @media(max-width:520px){.grid.two{grid-template-columns:1fr}}
-  .editor-tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:-1px}
-  .editor-tabs button{padding:8px 14px;background:var(--bg3);border:1px solid var(--line);
-    border-bottom:none;color:var(--tx2);font-size:12px;border-radius:6px 6px 0 0;cursor:pointer}
-  .editor-tabs button.on{background:var(--code-bg);color:var(--gold);font-weight:600}
-  .editor-area{width:100%;min-height:180px;padding:12px;background:var(--code-bg);
-    color:var(--tx);border:1px solid var(--line);border-radius:0 6px 6px 6px;
-    font-family:ui-monospace,'Courier New',monospace;font-size:13px;line-height:1.5;
-    resize:vertical;tab-size:2}
-  .preview-wrap{position:relative;margin-top:12px;border:1px solid var(--line);
-    border-radius:8px;overflow:hidden;background:#fff}
-  .preview-wrap .controls{position:absolute;top:6px;right:6px;z-index:2;display:flex;gap:4px}
-  .preview-wrap .controls button{padding:5px 9px;background:rgba(10,25,41,.85);
-    color:#fff;border:none;border-radius:5px;font-size:11px;cursor:pointer}
-  iframe.preview{width:100%;height:420px;border:none;display:block;background:#fff}
-  .preview-wrap.fullscreen{position:fixed!important;inset:0;width:100vw!important;
-    height:100vh!important;z-index:9999;border-radius:0}
-  .preview-wrap.fullscreen .controls{top:10px;right:10px}
-  .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);
-    background:var(--bg2);color:var(--tx);border:1px solid var(--line2);
-    border-left:3px solid var(--blue);padding:10px 16px;border-radius:8px;
-    font-size:13px;z-index:2000;box-shadow:0 6px 24px rgba(0,0,0,.5);
-    animation:slideUp .25s ease}
-  .toast.ok{border-left-color:var(--green)}
-  .toast.bad{border-left-color:var(--red)}
-  @keyframes slideUp{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
-  .code-block{background:var(--code-bg);color:var(--tx);padding:12px;border-radius:8px;
-    border:1px solid var(--line);font-family:ui-monospace,'Courier New',monospace;
-    font-size:12px;overflow-x:auto;white-space:pre;line-height:1.5;margin:8px 0;
-    position:relative;max-height:320px;overflow-y:auto}
-  .code-block .copy-btn{position:sticky;top:0;float:right;margin-left:8px;
-    padding:4px 9px;font-size:11px;background:var(--gold);color:#0a1929;
-    border:none;border-radius:4px;cursor:pointer;font-weight:600}
-  .steps{list-style:none;padding:0;margin:8px 0;counter-reset:step}
-  .steps li{counter-increment:step;padding:10px 12px 10px 40px;position:relative;
-    margin:6px 0;background:var(--bg3);border:1px solid var(--line);
-    border-radius:8px;font-size:13px;line-height:1.5}
-  .steps li::before{content:counter(step);position:absolute;left:10px;top:9px;
-    width:22px;height:22px;border-radius:50%;background:var(--gold);color:#0a1929;
-    font-weight:700;display:grid;place-items:center;font-size:12px}
-  .chip{display:inline-block;padding:3px 9px;border-radius:12px;font-size:11px;
-    background:var(--bg3);border:1px solid var(--line2);color:var(--tx2);margin-right:4px}
-  footer{text-align:center;padding:20px;color:var(--tx3);font-size:12px;
-    border-top:1px solid var(--line);margin-top:20px}
-  footer a{color:var(--gold);text-decoration:none}
-  footer a:hover{text-decoration:underline}
-  details{background:var(--bg3);border:1px solid var(--line);border-radius:8px;
-    padding:10px 14px;margin:8px 0}
-  details summary{cursor:pointer;font-weight:600;font-size:13px;color:var(--tx);padding:2px 0}
-  details[open] summary{color:var(--gold);margin-bottom:8px}
-  details p,details li{font-size:13px;color:var(--tx2);line-height:1.6}
-  code{background:var(--code-bg);padding:1px 5px;border-radius:3px;
-    font-family:ui-monospace,monospace;font-size:12px;color:var(--gold)}
-  ul{padding-left:20px;margin:0}
-  ul li{font-size:13px;line-height:1.7;color:var(--tx2)}
+:root{--bg:#0f1115;--b1:#171a21;--b2:#20242e;--b3:#2a303c;--ln:#323a47;--tx:#e6edf3;--t2:#8b949e;--ac:#58a6ff;--ok:#3fb950;--bad:#f85149;--warn:#d29922}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 system-ui,sans-serif;padding-bottom:72px}
+header{position:sticky;top:0;z-index:5;background:var(--b1);border-bottom:1px solid var(--ln);padding:10px 14px;display:flex;justify-content:space-between;align-items:center}
+header b{color:var(--ac)}
+main{padding:12px 14px;max-width:760px;margin:0 auto}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--b1);border-top:1px solid var(--ln);z-index:6}
+nav button{flex:1;padding:8px 2px;line-height:1.25;background:none;border:0;color:var(--t2);font:inherit;font-size:13px}
+nav button.on{color:var(--ac);background:var(--b2)}
+.card{background:var(--b1);border:1px solid var(--ln);border-radius:12px;padding:12px;margin:10px 0}
+.card h3{margin:0 0 8px;font-size:14px;color:var(--t2);text-transform:uppercase;letter-spacing:.04em}
+label{display:block;margin:10px 0 4px;color:var(--t2);font-size:13px}
+input,select,textarea{width:100%;background:var(--b2);color:var(--tx);border:1px solid var(--ln);border-radius:8px;padding:10px;font:inherit}
+textarea{font-family:ui-monospace,Consolas,monospace;font-size:13px;min-height:150px;resize:vertical}
+.btn{background:var(--b3);color:var(--tx);border:1px solid var(--ln);border-radius:8px;padding:10px 14px;font:inherit;font-weight:600;margin:4px 4px 4px 0}
+.btn.p{background:var(--ac);color:#000;border-color:var(--ac)}.btn.g{background:var(--ok);color:#000;border-color:var(--ok)}.btn.d{background:var(--bad);color:#fff;border-color:var(--bad)}
+.btn:disabled{opacity:.4}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tag{display:inline-block;padding:1px 8px;border-radius:10px;font-size:12px;background:var(--b3);color:var(--t2)}
+.ok{color:var(--ok)}.bad{color:var(--bad)}.warn{color:var(--warn)}.dim{color:var(--t2)}
+.it{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:10px;border:1px solid var(--ln);border-radius:10px;margin:6px 0;background:var(--b2)}
+.it small{display:block;color:var(--t2)}
+.drop{border:2px dashed var(--ln);border-radius:12px;padding:28px 12px;text-align:center}
+iframe{width:100%;height:60vh;border:1px solid var(--ln);border-radius:10px;background:#fff}
+pre{white-space:pre-wrap;word-break:break-word;margin:4px 0;font-size:12px}
+.hidden{display:none!important}
+
+/* ====== EKLENEN: HTML Görüntüleyici stilleri ====== */
+.edt-tabs{display:flex;gap:2px;border-bottom:1px solid var(--ln);margin:8px 0 0}
+.edt-tabs button{padding:8px 14px;background:var(--b2);border:1px solid var(--ln);border-bottom:none;color:var(--t2);font:inherit;font-size:12px;border-radius:6px 6px 0 0}
+.edt-tabs button.on{background:#05101c;color:var(--ac);font-weight:600}
+.edt-area{min-height:200px;padding:12px;background:#05101c;color:var(--tx);border:1px solid var(--ln);border-radius:0 8px 8px 8px;font:13px/1.5 ui-monospace,Consolas,monospace;resize:vertical;tab-size:2}
+.pv-wrap{position:relative;margin-top:12px;border:1px solid var(--ln);border-radius:10px;overflow:hidden;background:#fff}
+.pv-wrap .pv-controls{position:absolute;top:6px;right:6px;z-index:2;display:flex;gap:4px}
+.pv-wrap .pv-controls button{padding:5px 9px;background:rgba(15,17,21,.9);color:#fff;border:none;border-radius:5px;font-size:11px;font-family:inherit}
+.pv-wrap iframe.pv-frame{width:100%;height:420px;border:none;display:block;background:#fff}
+.pv-wrap.fullscreen{position:fixed!important;inset:0;width:100vw!important;height:100vh!important;z-index:9999;border-radius:0}
+.pv-wrap.fullscreen iframe.pv-frame{height:100vh}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--b2);color:var(--tx);border:1px solid var(--ln);border-left:3px solid var(--ac);padding:10px 16px;border-radius:8px;font-size:13px;z-index:2000;box-shadow:0 6px 24px rgba(0,0,0,.5);max-width:90vw}
+.toast.ok{border-left-color:var(--ok)}
+.toast.bad{border-left-color:var(--bad)}
+.code-block{background:#05101c;color:var(--tx);padding:12px;border-radius:8px;border:1px solid var(--ln);font:12px/1.5 ui-monospace,Consolas,monospace;overflow-x:auto;white-space:pre;margin:8px 0;max-height:320px;overflow-y:auto;position:relative}
+.code-block .cp{position:sticky;top:0;float:right;margin-left:8px;padding:4px 9px;font-size:11px;background:var(--ac);color:#000;border:none;border-radius:4px;font-weight:600}
+.steps{list-style:none;padding:0;margin:8px 0;counter-reset:step}
+.steps li{counter-increment:step;padding:10px 12px 10px 40px;position:relative;margin:6px 0;background:var(--b2);border:1px solid var(--ln);border-radius:8px;font-size:13px;line-height:1.5}
+.steps li::before{content:counter(step);position:absolute;left:10px;top:9px;width:22px;height:22px;border-radius:50%;background:var(--ac);color:#000;font-weight:700;display:grid;place-items:center;font-size:12px}
+.apk-modes{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.apk-modes button{flex:1;min-width:120px;padding:10px 12px;background:var(--b2);color:var(--tx);border:1px solid var(--ln);border-radius:8px;font:inherit;font-size:12px;font-weight:600}
+.apk-modes button.on{background:var(--ac);color:#000;border-color:var(--ac)}
+a.lnk{color:var(--ac);text-decoration:none}
+a.lnk:hover{text-decoration:underline}
 </style>
 </head>
 <body>
-<header>
-  <h1>⚙️ Araç-<span>m</span></h1>
-  <div class="sub">Yama aracı · HTML Görüntüleyici · APK Dönüştürücü</div>
-</header>
-<nav id="nav">
-  <button class="on" data-tab="html">🖥️ HTML Görüntüleyici</button>
-  <button data-tab="pwa">📦 PWA / APK</button>
-  <button data-tab="guide">📖 Rehber</button>
-</nav>
-<main id="main"></main>
-<footer>Araç-m · <a href="https://ademdibekli1-oss.github.io/Arac-m/" target="_blank" rel="noopener">GitHub Pages</a></footer>
-<div id="toasts"></div>
+<header><span><b>🛡️ Güvenli Yama Aracı</b> <span class="tag">v6</span></span><span class="dim" id="hInfo">dosya yok</span></header>
+<main>
 
+<section id="v-file">
+  <div class="card"><h3>1 · Dosya</h3>
+    <div class="drop" id="drop">📁 <b>index.html</b> veya <b>.zip</b> seç<br><span class="dim">Temiz (yamasız) dosya en iyisidir</span></div>
+    <input type="file" id="fileIn" accept=".html,.htm,.zip,.js,.css" class="hidden">
+    <div id="fileInfo"></div>
+  </div>
+</section>
+
+<section id="v-patch" class="hidden">
+  <div class="card"><h3>Yama seti</h3>
+    <div class="row"><select id="setSel" style="flex:1"></select><button class="btn" id="setNew">+ Yeni</button><button class="btn" id="setDel">Sil</button></div>
+    <div class="row"><button class="btn" id="btnUndo">↩️ Geri al</button><button class="btn" id="btnExport">📤 Dışa aktar</button><label class="btn" style="margin:4px 0">📥 İçe aktar<input type="file" id="jsonIn" accept=".json" class="hidden"></label></div>
+  </div>
+  <div class="card"><h3>Yamalar</h3><div id="pList"></div><button class="btn p" id="pNew">+ Yeni yama</button></div>
+  <div class="card hidden" id="pForm"><h3 id="pFormT">Yama</h3>
+    <label>Ad</label><input id="fName" maxlength="60" placeholder="Örn: Hata yakalayıcı">
+    <label>Hedef dosya (örn: index.html, *.css, *)</label><input id="fTarget" value="*.html">
+    <label>Ne yapsın?</label>
+    <select id="fAct">
+      <option value="ins-after">Bir metnin SONRASINA ekle</option>
+      <option value="ins-before">Bir metnin ÖNCESİNE ekle</option>
+      <option value="replace">Metni değiştir</option>
+      <option value="regex">Regex ile değiştir</option>
+      <option value="js">Gelişmiş: JS ile dosyayı dönüştür (izin ister)</option>
+    </select>
+    <div id="gKind"><label>Eklenen şey nedir?</label>
+      <select id="fKind"><option value="js">JavaScript (otomatik &lt;script&gt; ile sarılır)</option><option value="css">CSS (otomatik &lt;style&gt; ile sarılır)</option><option value="html">HTML (olduğu gibi)</option></select></div>
+    <div id="gFind"><label id="lFind">Aranacak metin (örn: &lt;/body&gt;)</label><input id="fFind" placeholder="&lt;/body&gt;"></div>
+    <label id="lCont">İçerik</label><textarea id="fCont" spellcheck="false"></textarea>
+    <div id="gAll" class="hidden"><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="fAll" style="width:auto"> Birden çok yerde eşleşirse hepsini değiştir</label></div>
+    <div id="fMsg" class="dim"></div>
+    <button class="btn g" id="fSave">💾 Kaydet</button><button class="btn" id="fCancel">Vazgeç</button>
+  </div>
+</section>
+
+<!-- ====== YENİ: HTML Görüntüleyici ====== -->
+<section id="v-html" class="hidden">
+  <div class="card">
+    <h3>🖥️ HTML Görüntüleyici</h3>
+    <p class="dim">HTML / CSS / JS kodunu yaz, canlı önizle. Dosya yükleyebilir veya hazır örnekle başlayabilirsin.</p>
+    <div class="edt-tabs" id="edtTabs">
+      <button class="on" data-edt="html">HTML</button>
+      <button data-edt="css">CSS</button>
+      <button data-edt="js">JS</button>
+    </div>
+    <textarea class="edt-area" id="edtArea" spellcheck="false"></textarea>
+    <div class="row" style="margin-top:8px">
+      <label style="margin:0">Sandbox:</label>
+      <select id="edtSandbox" style="max-width:280px">
+        <option value="safe">🔒 Güvenli (allow-scripts)</option>
+        <option value="full">⚠️ Tam (allow-scripts + allow-same-origin)</option>
+      </select>
+    </div>
+    <div class="row">
+      <button class="btn p" id="edtRender">▶️ Çalıştır</button>
+      <button class="btn" id="edtFile">📂 Dosya</button>
+      <button class="btn" id="edtDownload">💾 İndir</button>
+      <button class="btn" id="edtCopy">📋 Kopyala</button>
+      <button class="btn d" id="edtClear">🗑️ Temizle</button>
+      <input type="file" id="edtFileIn" accept=".html,.htm,.css,.js,.txt" class="hidden">
+    </div>
+    <div class="pv-wrap" id="edtWrap">
+      <div class="pv-controls">
+        <button id="edtFullscreen">⛶ Tam Ekran</button>
+        <button id="edtReload">🔄</button>
+      </div>
+      <iframe class="pv-frame" id="edtFrame" sandbox="allow-scripts" title="Önizleme"></iframe>
+    </div>
+  </div>
+  <div class="card">
+    <h3>💡 İpuçları</h3>
+    <div class="dim">
+      <p><b>Güvenli mod</b>: Önizlenen kod ana sayfaya erişemez. Test için önerilir.</p>
+      <p><b>Tam mod</b>: Kod kendi <code>localStorage</code>'ını kullanabilir. Sadece güvendiğin kod için.</p>
+      <p>Dosya yüklersen uzantıya göre doğru sekmeye yerleşir (HTML/CSS/JS).</p>
+      <p>İndirdiğin dosya <code>preview.html</code> olarak tarayıcıda açılır.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ====== YENİ: APK Dönüştürücü ====== -->
+<section id="v-apk" class="hidden">
+  <div class="card">
+    <h3>📱 APK Dönüştürücü</h3>
+    <p class="dim">HTML'yi APK'ya dönüştürmek için 4 yol var. Her biri için adım adım rehber ve hazır komutlar aşağıda. <b>Tarayıcıdan doğrudan APK üretilemez</b> — harici bir araç gerekir.</p>
+  </div>
+
+  <div class="card">
+    <div class="apk-modes" id="apkModes">
+      <button class="on" data-apk="pwa">🥇 PWABuilder</button>
+      <button data-apk="bubble">🫧 Bubblewrap</button>
+      <button data-apk="capacitor">⚡ Capacitor</button>
+      <button data-apk="webview">🧩 WebView</button>
+    </div>
+    <div id="apkContent"></div>
+  </div>
+
+  <div class="card">
+    <h3>📥 ZIP Olarak İndir</h3>
+    <p class="dim">Yüklü HTML dosyasını tek başına ya da PWA paketiyle birlikte ZIP olarak indir. PWA ZIP'i bir sunucuya atarsan APK için hazır olur.</p>
+    <div class="row">
+      <button class="btn" id="apkZipHtml">📦 Sadece HTML ZIP</button>
+      <button class="btn g" id="apkZipPwa">📦 PWA ZIP (manifest + sw.js)</button>
+    </div>
+    <div id="apkZipMsg" class="dim"></div>
+  </div>
+</section>
+
+<section id="v-prev" class="hidden">
+  <div class="card"><h3>Sonuç raporu</h3><div id="report" class="dim">—</div>
+    <div class="row"><button class="btn p" id="btnRun">▶️ Uygula ve önizle</button><button class="btn" id="btnStrip">🧹 Dosyadaki yama izlerini sök</button></div></div>
+  <div class="card"><h3>Önizleme</h3><div id="errBox" class="dim">Önizleme hataları burada görünür.</div><iframe id="frame" sandbox="allow-scripts allow-same-origin"></iframe></div>
+</section>
+
+<section id="v-out" class="hidden">
+  <div class="card"><h3>İndir</h3>
+    <p class="dim">Bu işlem yamaları <b>özgün dosyaya</b> uygular (üst üste binmez). Rapor temiz değilse indirmeden önce uyarır.</p>
+    <button class="btn g" id="dlOne">⬇️ Yamalı dosyayı indir</button>
+    <button class="btn" id="dlZip">⬇️ ZIP olarak indir</button>
+    <div id="dlMsg" class="dim"></div></div>
+</section>
+
+<section id="v-tools" class="hidden">
+  <div class="card"><h3>Araçlar</h3>
+    <div class="row">
+      <button class="btn p" data-go="v-html">🖥️ HTML Görüntüleyici</button>
+      <button class="btn p" data-go="v-apk">📱 APK Dönüştürücü</button>
+      <button class="btn p" data-go="v-diff">🔍 Fark (karşılaştır)</button>
+      <button class="btn p" data-go="v-bulk">🔁 Toplu değiştir</button>
+      <button class="btn p" data-go="v-pwa">📦 Uygulama paketleyici</button>
+      <button class="btn p" data-go="v-test">🧪 Test paneli</button>
+      <button class="btn p" data-go="v-store">💾 Kayıt yedekleyici</button>
+    </div></div>
+</section>
+
+<section id="v-diff" class="hidden">
+  <div class="card"><h3>🔍 Sürüm karşılaştırıcı</h3>
+    <p class="dim">İki dosyayı karşılaştır. Seçenek 1: yüklü dosya ile yamalı sonuç. Seçenek 2: iki ayrı dosya.</p>
+    <button class="btn" id="dfSelf">Yüklü dosya ↔ yamalı sonuç</button>
+    <label>Ya da iki dosya seç (eski → yeni)</label>
+    <input type="file" id="dfA"><input type="file" id="dfB" style="margin-top:6px">
+    <button class="btn p" id="dfGo">Karşılaştır</button>
+    <div id="dfSum" class="dim" style="margin-top:8px"></div><div id="dfOut"></div></div>
+</section>
+
+<section id="v-bulk" class="hidden">
+  <div class="card"><h3>🔁 Toplu metin değiştirici</h3>
+    <p class="dim">Yüklü bütün dosyalarda bir metni değiştirir. Doğrudan dosyayı bozmaz: önce kaç yerde geçtiğini gösterir, sonra <b>geri alınabilir yama</b> olarak ekler.</p>
+    <label>Aranan</label><input id="bkFind"><label>Yeni</label><input id="bkRep">
+    <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="bkRe" style="width:auto"> Regex</label>
+    <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="bkCase" style="width:auto"> Büyük/küçük harf duyarlı</label>
+    <button class="btn" id="bkCount">Say</button><button class="btn g" id="bkAdd">Yama olarak ekle</button>
+    <div id="bkOut" class="dim"></div></div>
+</section>
+
+<section id="v-pwa" class="hidden">
+  <div class="card"><h3>📦 Uygulama paketleyici (PWA)</h3>
+    <p class="dim">Yüklü HTML'e uygulama olarak yüklenebilme dosyalarını üretir: manifest, çevrimdışı çalışma dosyası (sw.js), ikonlar ve gerekli etiketler. Bu paket APK için de temel olur.</p>
+    <label>Uygulama adı</label><input id="pwName" value="Uygulamam">
+    <label>Kısa ad</label><input id="pwShort" value="Uygulama" maxlength="12">
+    <label>Tema rengi</label><input id="pwColor" type="color" value="#b3000f" style="height:44px">
+    <label>İkon simgesi (emoji ya da harf)</label><input id="pwIcon" value="🎮" maxlength="2">
+    <button class="btn g" id="pwGo">📦 Paketi oluştur (ZIP)</button>
+    <button class="btn p" id="pwToApk">📱 Bu paketle APK üret →</button>
+    <div id="pwOut" class="dim"></div></div>
+</section>
+
+<section id="v-test" class="hidden">
+  <div class="card"><h3>🧪 Test paneli</h3>
+    <p class="dim">Özgün dosyayı ve yamalı sonucu çalıştırıp aynı kontrolleri yapar. Yama bir şeyi bozduysa farkı gösterir.</p>
+    <button class="btn p" id="tsGo">▶️ Testi çalıştır</button>
+    <div id="tsOut"></div></div>
+</section>
+
+<section id="v-store" class="hidden">
+  <div class="card"><h3>💾 Yerel kayıt yedekleyici</h3>
+    <p class="dim">Bu sayfayla <b>aynı adresteki</b> sitelerin tarayıcı kayıtlarını (localStorage) listeler, yedekler ve geri yükler. Oyunun kaydını görmek için bu aracı oyunla aynı yere (örn. <code>.../Oyunum/yama-araci.html</code>) yükle.</p>
+    <div class="row"><button class="btn" id="stList">🔄 Listele</button><button class="btn p" id="stExp">📤 Yedeği indir</button>
+    <label class="btn" style="margin:4px 0">📥 Yedeği yükle<input type="file" id="stImp" accept=".json" class="hidden"></label></div>
+    <div id="stOut"></div></div>
+</section>
+
+<section id="v-ai" class="hidden">
+  <div class="card"><h3>🤖 YZ asistanı</h3>
+    <label>Sağlayıcı</label><select id="aiProv"></select>
+    <label>Adres (API base)</label><input id="aiBase">
+    <label>API anahtarı <span class="dim">(Ollama için gerekmez)</span></label><input id="aiKey" type="password" autocomplete="off" placeholder="sk-...">
+    <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="aiRem" style="width:auto"> Anahtarı bu cihazda hatırla (kapalıysa sekme kapanınca silinir)</label>
+    <div class="row"><button class="btn p" id="aiList">🔎 Modelleri getir</button>
+      <label class="dim" style="margin:0"><input type="checkbox" id="aiCode" style="width:auto" checked> kodlama odaklı</label>
+      <label class="dim" style="margin:0"><input type="checkbox" id="aiFree" style="width:auto"> ücretsiz</label></div>
+    <input id="aiQ" placeholder="Modellerde ara (örn: coder, claude, deepseek)" style="margin-top:6px">
+    <label>Model</label><select id="aiModelSel"></select><input id="aiModel" placeholder="ya da modeli elle yaz" style="margin-top:6px">
+    <div id="aiInfo" class="dim"></div>
+  </div>
+  <div class="card"><h3>Bağlam ekle</h3>
+    <div class="row"><input id="aiFind" placeholder="Dosyada ara (metin/regex)" style="flex:1"><button class="btn" id="aiAttF">📎 Dosyadan</button></div>
+    <div class="row"><button class="btn" id="aiAttP">📎 Yamalar</button><button class="btn" id="aiAttE">📎 Son hata/test</button><button class="btn" id="aiAttC">Bağlamı temizle</button></div>
+    <div id="aiCtx" class="dim">Ek yok.</div>
+    <p class="dim" style="font-size:12px">Eklenen parçalar seçtiğin sağlayıcıya gönderilir. Tüm dosya gönderilmez.</p></div>
+  <div class="card"><h3>Sohbet</h3><div id="aiLog"></div>
+    <textarea id="aiIn" placeholder="Ne yapmak istiyorsun? (Türkçe yaz)" style="min-height:90px"></textarea>
+    <div class="row"><button class="btn g" id="aiSend">Gönder</button><button class="btn" id="aiStop">Durdur</button><button class="btn" id="aiClr">Sohbeti sil</button></div>
+    <details style="margin-top:8px"><summary class="dim">Ollama / yerel model nasıl?</summary>
+    <p class="dim">Ollama, bilgisayarında çalışan bir programdır; telefondan çalıştırılamaz. Bilgisayarında kur, <code>OLLAMA_ORIGINS=*</code> ve (telefondan bağlanacaksan) <code>OLLAMA_HOST=0.0.0.0</code> ayarla, sonra bu araçta Sağlayıcı olarak Ollama'yı seç; adres olarak bilgisayarının yerel IP'sini yaz (örn. <code>http://192.168.1.20:11434/v1</code>). Aracı internetten (https) açtıysan tarayıcı http adresini engelleyebilir; aracı dosya olarak açmak bunu çözer. Yerel modellerde kodlama için "coder" adı geçen modelleri seç.</p></details>
+  </div>
+</section>
+
+</main>
+<nav>
+  <button data-v="v-file" class="on">📁<br>Dosya</button>
+  <button data-v="v-html">🖥️<br>HTML</button>
+  <button data-v="v-patch">🛠<br>Yamalar</button>
+  <button data-v="v-ai">🤖<br>YZ</button>
+  <button data-v="v-prev">👁<br>Önizle</button>
+  <button data-v="v-out">⬇️<br>İndir</button>
+  <button data-v="v-tools">⋯<br>Araçlar</button>
+</nav>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
 "use strict";
+/* ============ DURUM ============ */
+const $=id=>document.getElementById(id);
+const LS='uwp5_sets',LSH='uwp5_hist';
+let proj={name:'proje',files:{},orig:{}};   // orig: yüklenen ilk hâl, asla değişmez
+let sets={}, cur='Varsayılan', editIdx=-1, jsOK=false, hist=[];
+try{sets=JSON.parse(localStorage.getItem(LS)||'{}')||{};}catch(e){sets={};}
+if(!Object.keys(sets).length)sets['Varsayılan']=[];
+cur=Object.keys(sets)[0];
+const P=()=>sets[cur];
+function save(){try{localStorage.setItem(LS,JSON.stringify(sets));}catch(e){}}
+function snap(){hist.push(JSON.stringify(sets[cur]));if(hist.length>30)hist.shift();}
+const slug=s=>(s||'yama').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,30)||'yama';
+const uid=()=>Math.random().toString(36).slice(2,8);
+const el=(t,txt,cls)=>{const e=document.createElement(t);if(txt!==undefined)e.textContent=txt;if(cls)e.className=cls;return e;};
 
-/* ==================== DURUM ==================== */
-const A = {
-  tab:'html',
-  editorTab:'html',
-  html:{
-    code:{
-      html:'<h1>Merhaba Dünya</h1>\n<p>Bu bir önizlemedir.</p>\n<button onclick="alert(\'Tıklandı!\')">Tıkla</button>',
-      css:'body{font-family:system-ui;padding:20px;background:#fff;color:#333}\nh1{color:#c8102e}\nbutton{padding:8px 16px;background:#c8102e;color:#fff;border:none;border-radius:6px;cursor:pointer}',
-      js:'console.log("Merhaba, konsol!");'
-    },
-    safe:true,
-    fullscreen:false
-  },
-  pwa:{
-    name:'Araç-m Uygulaması',
-    short:'Araç-m',
-    desc:'Araç-m ile oluşturulmuş uygulama',
-    theme:'#0a1929',
-    bg:'#0a1929',
-    display:'standalone',
-    startUrl:'./',
-    iconEmoji:'⚙️',
-    iconBg:'#0a1929',
-    includeIndex:true,
-    cacheName:'aracm-v1'
-  },
-  apk:{ mode:'pwa' }
+/* ============ GÖRÜNÜM ============ */
+const VIEWS=['v-file','v-html','v-patch','v-prev','v-out','v-ai','v-tools','v-apk','v-diff','v-bulk','v-pwa','v-test','v-store'];
+const SUB=['v-apk','v-diff','v-bulk','v-pwa','v-test','v-store'];
+function show(v){VIEWS.forEach(x=>$(x).classList.toggle('hidden',x!==v));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v||(SUB.includes(v)&&b.dataset.v==='v-tools')));window.scrollTo(0,0);
+  if(v==='v-html'){ setTimeout(updateHtmlPreview, 30); }
+  if(v==='v-apk'){ renderApkContent(); }
+}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>show(b.dataset.v));
+
+/* ============ DOSYA ============ */
+$('drop').onclick=()=>$('fileIn').click();
+$('fileIn').onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;
+  proj={name:f.name.replace(/\.[^.]+$/,''),files:{},orig:{}};
+  try{
+    if(/\.zip$/i.test(f.name)){
+      if(!window.JSZip)throw new Error('ZIP kütüphanesi yüklenemedi (internet gerekli). Tek dosya yükle.');
+      const z=await JSZip.loadAsync(f);
+      for(const n of Object.keys(z.files)){if(z.files[n].dir)continue;if(!/\.(html?|css|js|json|txt|svg|webmanifest)$/i.test(n))continue;proj.files[n]=await z.files[n].async('string');}
+    }else proj.files[f.name]=await f.text();
+    proj.orig=Object.assign({},proj.files);
+    const info=$('fileInfo');info.textContent='';
+    Object.keys(proj.files).forEach(n=>{const marks=(proj.files[n].match(/<\u0021--MOD:/g)||[]).length;
+      const d=el('div');d.append(el('span','📄 '+n+' · '+Math.round(proj.files[n].length/1024)+' KB'));
+      if(marks)d.append(el('span',' ⚠ '+marks+' yama izi var (aşağıda "sök" önerilir)','warn'));info.append(d);});
+    $('hInfo').textContent=f.name;
+    refreshAll();show('v-patch');
+  }catch(err){alert('Dosya okunamadı: '+err.message);}
 };
 
-/* ==================== YARDIMCILAR ==================== */
-const $ = id => document.getElementById(id);
-const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-
-function toast(msg, type='info', dur=2600){
-  const el = document.createElement('div');
-  el.className = 'toast ' + (type === 'ok' ? 'ok' : type === 'bad' ? 'bad' : '');
-  el.textContent = msg;
-  $('toasts').appendChild(el);
-  setTimeout(() => el.remove(), dur);
+/* ============ YAMA LİSTESİ ============ */
+function refreshAll(){
+  const s=$('setSel');s.textContent='';Object.keys(sets).forEach(k=>{const o=el('option',k);o.value=k;if(k===cur)o.selected=true;s.append(o);});
+  const L=$('pList');L.textContent='';
+  if(!P().length)L.append(el('div','Henüz yama yok.','dim'));
+  P().forEach((p,i)=>{
+    const d=el('div','','it'),l=el('div');
+    l.append(el('b',(p.on===false?'⏸ ':'')+p.name),el('small',actName(p.action)+' · '+p.target+(p.kind&&p.action.startsWith('ins')?' · '+p.kind.toUpperCase():'')));
+    const r=el('div');
+    const t=el('button',p.on===false?'Aç':'Kapat','btn');t.onclick=()=>{snap();p.on=p.on===false;save();refreshAll();};
+    const e=el('button','Düzenle','btn');e.onclick=()=>openForm(i);
+    const x=el('button','Sil','btn d');x.onclick=()=>{if(confirm('Silinsin mi?')){snap();P().splice(i,1);save();refreshAll();}};
+    r.append(t,e,x);d.append(l,r);L.append(d);});
 }
+const actName=a=>({'ins-after':'sonrasına ekle','ins-before':'öncesine ekle',replace:'değiştir',regex:'regex',js:'JS dönüşümü'}[a]||a);
+$('setSel').onchange=e=>{cur=e.target.value;hist=[];refreshAll();};
+$('setNew').onclick=()=>{const n=(prompt('Yeni yama seti adı:')||'').trim().slice(0,40);if(!n||sets[n])return;sets[n]=[];cur=n;save();hist=[];refreshAll();};
+$('setDel').onclick=()=>{if(Object.keys(sets).length<2)return alert('En az bir set kalmalı.');if(!confirm('"'+cur+'" seti silinsin mi?'))return;delete sets[cur];cur=Object.keys(sets)[0];save();refreshAll();};
+$('btnUndo').onclick=()=>{if(!hist.length)return alert('Geri alınacak bir şey yok.');sets[cur]=JSON.parse(hist.pop());save();refreshAll();};
 
-function copyToClipboard(text){
-  if(navigator.clipboard && window.isSecureContext){
-    return navigator.clipboard.writeText(text).then(()=>true).catch(()=>fallbackCopy(text));
+/* ============ YAMA FORMU ============ */
+function formUI(){
+  const a=$('fAct').value,ins=a.startsWith('ins');
+  $('gKind').classList.toggle('hidden',!ins);
+  $('gFind').classList.toggle('hidden',a==='js');
+  $('gAll').classList.toggle('hidden',!(a==='replace'||a==='regex'));
+  $('lFind').textContent=a==='regex'?'Regex (örn: /eski/gi)':a==='replace'?'Değiştirilecek eski metin':'Aranacak metin (örn: </body>)';
+  $('lCont').textContent=a==='js'?'JS gövdesi: (content, filename) alır, yeni metni return eder':a==='replace'||a==='regex'?'Yeni metin':'Eklenecek içerik';
+}
+$('fAct').onchange=formUI;
+function openForm(i){
+  editIdx=i;const p=i>=0?P()[i]:{name:'',target:'*.html',action:'ins-after',kind:'js',find:'</body>',content:'',all:false};
+  $('pFormT').textContent=i>=0?'Yamayı düzenle':'Yeni yama';
+  $('fName').value=p.name;$('fTarget').value=p.target;$('fAct').value=p.action;$('fKind').value=p.kind||'js';
+  $('fFind').value=p.find||'';$('fCont').value=p.content||'';$('fAll').checked=!!p.all;$('fMsg').textContent='';
+  formUI();$('pForm').classList.remove('hidden');$('pForm').scrollIntoView({behavior:'smooth'});
+}
+$('pNew').onclick=()=>openForm(-1);
+$('fCancel').onclick=()=>$('pForm').classList.add('hidden');
+$('fSave').onclick=()=>{
+  const p={id:editIdx>=0?P()[editIdx].id:slug($('fName').value)+'-'+uid(),on:true,name:$('fName').value.trim().slice(0,60)||'İsimsiz',target:$('fTarget').value.trim()||'*.html',
+    action:$('fAct').value,kind:$('fKind').value,find:$('fFind').value,content:$('fCont').value,all:$('fAll').checked};
+  if(editIdx>=0)p.on=P()[editIdx].on;
+  const err=validatePatch(p);if(err){$('fMsg').textContent='⛔ '+err;$('fMsg').className='bad';return;}
+  snap();if(editIdx>=0)P()[editIdx]=p;else P().push(p);save();$('pForm').classList.add('hidden');refreshAll();
+};
+function validatePatch(p){
+  if(p.action!=='js'&&!p.find)return 'Aranacak metin boş olamaz.';
+  if(!p.content&&p.action!=='replace'&&p.action!=='regex')return 'İçerik boş olamaz.';
+  if(p.action==='regex'){try{parseRe(p.find);}catch(e){return 'Regex hatalı: '+e.message;}}
+  if(p.action==='ins-after'||p.action==='ins-before'){
+    if(p.kind==='js'){try{new Function(p.content);}catch(e){return 'JavaScript sözdizimi hatası: '+e.message;}}
+    if(/<\/script/i.test(p.content)&&p.kind!=='html')return 'İçerikte <\/script> geçmemeli (HTML türünü seç).';
   }
-  return Promise.resolve(fallbackCopy(text));
+  if(p.action==='js'){try{new Function('content','filename',p.content);}catch(e){return 'JS hatası: '+e.message;}}
+  return '';
 }
-function fallbackCopy(text){
+
+/* ============ MOTOR ============ */
+function parseRe(s){const m=String(s).match(/^\/([\s\S]*)\/([a-z]*)$/);if(!m)throw new Error('/desen/bayrak biçiminde yaz');return new RegExp(m[1],m[2]);}
+const globRe=g=>new RegExp('^'+g.replace(/[.+^${}()|[\]\\]/g,'\\$&').replace(/\*/g,'.*')+'$','i');
+const hit=(p,fn)=>{const base=fn.split('/').pop();return globRe(p.target).test(fn)||globRe(p.target).test(base)||p.target==='*';};
+const MODRE=/\n<\u0021--MOD:([a-z0-9-]+)-->[\s\S]*?<\u0021--\/MOD:\1-->\n/g;
+const strip=s=>s.replace(MODRE,'');
+function wrap(p){
+  let c=p.content;
+  if(p.kind==='js')c='<\u0073cript>\n'+c+'\n<\/script>';else if(p.kind==='css')c='<style>\n'+c+'\n</style>';
+  return '<\u0021--MOD:'+p.id+'-->\n'+c+'\n<\u0021--/MOD:'+p.id+'-->';
+}
+function countOf(s,t){let n=0,i=0;while((i=s.indexOf(t,i))!==-1){n++;i+=t.length||1;}return n;}
+function applyFile(text,fn,patches,jsAllowed){
+  let r=strip(text);const rep=[];
+  patches.forEach(p=>{
+    if(p.on===false||!hit(p,fn))return;
+    try{
+      if(p.action==='ins-after'||p.action==='ins-before'){
+        const n=countOf(r,p.find);
+        if(n===0){rep.push({p,st:'bad',msg:'"'+p.find.slice(0,30)+'" bulunamadı, uygulanmadı'});return;}
+        const i=r.indexOf(p.find),at=p.action==='ins-after'?i+p.find.length:i;
+        r=r.slice(0,at)+'\n'+wrap(p)+'\n'+r.slice(at);
+        rep.push({p,st:n>1?'warn':'ok',msg:n>1?'ilk eşleşmeye eklendi ('+n+' eşleşme vardı)':'eklendi'});
+      }else if(p.action==='replace'){
+        const n=countOf(r,p.find);
+        if(n===0){rep.push({p,st:'bad',msg:'aranan metin bulunamadı (zaten uygulanmış olabilir)'});return;}
+        if(n>1&&!p.all){rep.push({p,st:'bad',msg:n+' yerde eşleşiyor; "hepsini değiştir" işaretlenmedi, uygulanmadı'});return;}
+        r=r.split(p.find).join(p.content);rep.push({p,st:'ok',msg:n+' yer değiştirildi'});
+      }else if(p.action==='regex'){
+        const re=parseRe(p.find),m=r.match(new RegExp(re.source,re.flags.includes('g')?re.flags:re.flags+'g'));
+        if(!m){rep.push({p,st:'bad',msg:'regex eşleşmedi'});return;}
+        if(m.length>1&&!p.all&&!re.flags.includes('g')){rep.push({p,st:'bad',msg:m.length+' eşleşme; "hepsini değiştir" gerek'});return;}
+        r=r.replace(re,p.content);rep.push({p,st:'ok',msg:m.length+' eşleşme değiştirildi'});
+      }else if(p.action==='js'){
+        if(!jsAllowed){rep.push({p,st:'warn',msg:'JS dönüşümü için izin verilmedi, atlandı'});return;}
+        const out=new Function('content','filename',p.content)(r,fn);
+        if(typeof out!=='string'||!out){rep.push({p,st:'bad',msg:'JS bir metin döndürmedi, atlandı'});return;}
+        r=out;rep.push({p,st:'ok',msg:'dönüştürüldü'});
+      }
+    }catch(e){rep.push({p,st:'bad',msg:'hata: '+e.message});}
+  });
+  const chk=[];
+  if(/^\s*(﻿)?<!doctype/i.test(text)&&!/^\s*(﻿)?<!doctype/i.test(r))chk.push('<!DOCTYPE> satırı kaybolmuş!');
+  if(/<\/html>/i.test(text)&&!/<\/html>/i.test(r))chk.push('</html> kaybolmuş!');
+  if(r.length<text.length*0.5)chk.push('dosya yarıdan fazla küçüldü!');
+  return {out:r,rep,chk};
+}
+function runAll(){
+  const res={};let bad=0,warn=0,ok=0,chk=0;
+  for(const fn of Object.keys(proj.orig)){
+    const t=applyFile(proj.orig[fn],fn,P(),jsOK);res[fn]=t;
+    t.rep.forEach(x=>{if(x.st==='bad')bad++;else if(x.st==='warn')warn++;else ok++;});chk+=t.chk.length;
+  }
+  return {res,bad,warn,ok,chk};
+}
+function needsJsPermission(){return P().some(p=>p.on!==false&&p.action==='js');}
+function askJs(){
+  if(!needsJsPermission()||jsOK)return;
+  const names=P().filter(p=>p.on!==false&&p.action==='js').map(p=>p.name).join(', ');
+  jsOK=confirm('Şu yama(lar) kendi JavaScript kodunu bu araçta çalıştıracak: '+names+'\n\nKodu kendin yazdıysan ya da güveniyorsan Tamam de.');
+}
+
+/* ============ ÖNİZLE ============ */
+const CATCH='<\u0073cript>(function(){function s(m){try{parent.postMessage({uwpErr:String(m)},"*")}catch(e){}}window.addEventListener("error",function(e){s((e.message||"?")+" @satır "+(e.lineno||"?"))});window.addEventListener("unhandledrejection",function(e){s("Promise: "+((e.reason&&e.reason.message)||e.reason))});})();<\/script>';
+let errs=[];
+window.addEventListener('message',e=>{if(e.data&&e.data.uwpErr){errs.push(e.data.uwpErr);const b=$('errBox');b.textContent='';b.className='bad';b.append(el('b','⚠️ Önizlemede '+errs.length+' hata:'));errs.slice(-5).forEach(x=>b.append(el('pre',x)));}});
+$('btnRun').onclick=()=>{
+  askJs();const R=runAll();renderReport(R);
+  const main=Object.keys(R.res).find(f=>/\.html?$/i.test(f));
+  if(!main){$('frame').srcdoc='<p>HTML dosyası yok</p>';return;}
+  errs=[];$('errBox').className='dim';$('errBox').textContent='Hata yok (şimdilik).';
+  let h=R.res[main].out;
+  h=/<head[^>]*>/i.test(h)?h.replace(/<head[^>]*>/i,m=>m+CATCH):CATCH+h;
+  $('frame').srcdoc=h;
+};
+function renderReport(R){
+  const box=$('report');box.textContent='';box.className='';
+  const s=el('div');s.append(el('b',(R.bad?'⛔ ':R.warn||R.chk?'⚠️ ':'✅ ')+R.ok+' başarılı · '+R.warn+' uyarı · '+R.bad+' sorun'));box.append(s);
+  Object.keys(R.res).forEach(fn=>{const t=R.res[fn];if(!t.rep.length&&!t.chk.length)return;
+    box.append(el('div','📄 '+fn,'dim'));
+    t.rep.forEach(x=>box.append(el('div',({ok:'✅ ',warn:'⚠️ ',bad:'⛔ '}[x.st]||'')+x.p.name+' — '+x.msg,x.st)));
+    t.chk.forEach(c=>box.append(el('div','⛔ '+c,'bad')));});
+  if(!R.ok&&!R.warn&&!R.bad)box.append(el('div','Bu dosyaya uygulanan yama yok (hedef dosya adını kontrol et).','dim'));
+}
+$('btnStrip').onclick=()=>{
+  let n=0;for(const fn of Object.keys(proj.orig)){const c=(proj.orig[fn].match(/<\u0021--MOD:/g)||[]).length;n+=c;proj.orig[fn]=strip(proj.orig[fn]);}
+  alert(n?n+' yama izi sökülerek dosya temiz hâle getirildi (diskteki dosya değişmez).':'Dosyada yama izi yok.');
+};
+
+/* ============ İNDİR ============ */
+function guard(){
+  askJs();const R=runAll();
+  let msg='';if(R.chk)msg='⛔ Güvenlik kontrolleri başarısız (DOCTYPE/boyut). İndirme engellendi.';
+  else if(R.bad&&!confirm(R.bad+' yama uygulanamadı. Yine de indirilsin mi?'))msg='İndirme iptal edildi.';
+  $('dlMsg').textContent=msg;renderReport(R);return msg?null:R;
+}
+function dl(name,blob){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.append(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},2000);}
+$('dlOne').onclick=()=>{
+  const R=guard();if(!R)return;
+  const fs=Object.keys(R.res);let fn=fs.find(f=>/\.html?$/i.test(f))||fs[0];
+  if(fs.length>1&&!confirm('Birden çok dosya var; yalnızca "'+fn+'" indirilecek. ZIP için "ZIP olarak indir"i kullan. Devam?'))return;
+  dl(fn.split('/').pop().replace(/(\.[^.]+)$/,'-yamali$1'),new Blob([R.res[fn].out],{type:'text/plain;charset=utf-8'}));
+  $('dlMsg').textContent='✅ İndirildi (özgün dosya değişmedi).';
+};
+$('dlZip').onclick=async()=>{
+  if(!window.JSZip)return alert('ZIP için internet (JSZip) gerekli.');
+  const R=guard();if(!R)return;const z=new JSZip();
+  Object.keys(R.res).forEach(f=>z.file(f,R.res[f].out));
+  dl(proj.name+'-yamali.zip',await z.generateAsync({type:'blob'}));$('dlMsg').textContent='✅ ZIP indirildi.';
+};
+
+/* ============ İÇE / DIŞA AKTAR ============ */
+$('btnExport').onclick=()=>dl(slug(cur)+'-yama-seti.json',new Blob([JSON.stringify({uwp:5,name:cur,patches:P()},null,2)],{type:'application/json'}));
+$('jsonIn').onchange=e=>{
+  const f=e.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{try{
+    const d=JSON.parse(r.result),arr=Array.isArray(d)?d:d.patches;
+    if(!Array.isArray(arr)||arr.length>200)throw new Error('geçersiz biçim');
+    const ok=arr.map(x=>({id:slug(x.name)+'-'+uid(),on:x.on!==false,name:String(x.name||'İsimsiz').slice(0,60),target:String(x.target||'*.html').slice(0,80),
+      action:({'insert-after':'ins-after','insert-before':'ins-before','js-script':'js'}[x.action]||x.action),kind:['js','css','html'].includes(x.kind)?x.kind:'html',
+      find:String(x.find!==undefined?x.find:x.selector||'').slice(0,2000),content:String(x.content||x.script||'').slice(0,500000),all:!!x.all}))
+      .filter(x=>['ins-after','ins-before','replace','regex','js'].includes(x.action));
+    const hasJs=ok.some(x=>x.action==='js');
+    if(!confirm(ok.length+' yama içe aktarılsın mı?'+(hasJs?'\n\n⚠️ Bunların arasında JS kodu çalıştıran yama var; yalnızca güvendiğin kaynaktan geldiyse Tamam de.':'')))return;
+    if(hasJs)ok.forEach(x=>{if(x.action==='js')x.on=false;});
+    const n=(d.name||f.name.replace(/\.json$/,'')).slice(0,40);let nn=n,k=2;while(sets[nn])nn=n+' '+k++;
+    sets[nn]=ok;cur=nn;save();hist=[];refreshAll();alert('İçe aktarıldı: "'+nn+'"'+(hasJs?'\nJS yamaları kapalı geldi; Yamalar listesinden "Aç" diyerek etkinleştir.':''));
+  }catch(err){alert('JSON okunamadı: '+err.message);}};
+  r.readAsText(f);e.target.value='';
+};
+refreshAll();
+/* ============ ARAÇLAR MENÜSÜ ============ */
+document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>show(b.dataset.go));
+const mainHtmlName=()=>Object.keys(proj.orig).find(f=>/\.html?$/i.test(f))||Object.keys(proj.orig)[0];
+const needFile=()=>{if(!Object.keys(proj.orig).length){alert('Önce Dosya sekmesinden bir dosya yükle.');return false;}return true;};
+
+/* ============ FARK (Myers) ============ */
+function myers(A,B,MAX){
+  const N=A.length,M=B.length,max=Math.min(MAX,N+M),off=max+1;let V=new Int32Array(2*max+3);const trace=[];
+  for(let d=0;d<=max;d++){
+    trace.push(V.slice());
+    for(let k=-d;k<=d;k+=2){
+      let x=(k===-d||(k!==d&&V[off+k-1]<V[off+k+1]))?V[off+k+1]:V[off+k-1]+1,y=x-k;
+      while(x<N&&y<M&&A[x]===B[y]){x++;y++;}
+      V[off+k]=x;
+      if(x>=N&&y>=M){
+        let cx=N,cy=M;const ops=[];
+        for(let dd=d;dd>0;dd--){
+          const W=trace[dd],kk=cx-cy;
+          const pk=(kk===-dd||(kk!==dd&&W[off+kk-1]<W[off+kk+1]))?kk+1:kk-1;
+          const px=W[off+pk],py=px-pk;
+          while(cx>px&&cy>py){ops.push(['=',A[cx-1]]);cx--;cy--;}
+          if(cx===px){ops.push(['+',B[cy-1]]);cy--;}else{ops.push(['-',A[cx-1]]);cx--;}
+        }
+        while(cx>0&&cy>0){ops.push(['=',A[cx-1]]);cx--;cy--;}
+        return ops.reverse();
+      }
+    }
+  }
+  return null;
+}
+function diffText(a,b){
+  const x=a.split('\n'),y=b.split('\n');let s=0;
+  while(s<x.length&&s<y.length&&x[s]===y[s])s++;
+  let ea=x.length,eb=y.length;while(ea>s&&eb>s&&x[ea-1]===y[eb-1]){ea--;eb--;}
+  const A=x.slice(s,ea),B=y.slice(s,eb);
+  const ops=[];for(let i=0;i<s;i++)ops.push(['=',x[i]]);
+  const mid=myers(A,B,1500);
+  if(mid)mid.forEach(o=>ops.push(o));
+  else{A.forEach(l=>ops.push(['-',l]));B.forEach(l=>ops.push(['+',l]));ops.cut=true;}
+  for(let i=ea;i<x.length;i++)ops.push(['=',x[i]]);
+  return ops;
+}
+function showDiff(a,b,label){
+  const ops=diffText(a,b);let add=0,del=0;ops.forEach(o=>{if(o[0]==='+')add++;else if(o[0]==='-')del++;});
+  $('dfSum').textContent=label+': '+add+' satır eklendi, '+del+' satır silindi'+(ops.cut?' (fark çok büyük, ayrıntı basitleştirildi)':'')+'.';
+  const out=$('dfOut');out.textContent='';
+  if(!add&&!del){out.append(el('div','✅ Dosyalar aynı.','ok'));return;}
+  const C=2;const keep=new Array(ops.length).fill(false);
+  ops.forEach((o,i)=>{if(o[0]!=='=')for(let j=Math.max(0,i-C);j<=Math.min(ops.length-1,i+C);j++)keep[j]=true;});
+  let n=0,gap=false;const box=el('div');box.style.cssText='font:12px/1.4 ui-monospace,monospace;overflow-x:auto';
+  for(let i=0;i<ops.length;i++){
+    if(!keep[i]){gap=true;continue;}
+    if(gap){box.append(el('div','⋯','dim'));gap=false;}
+    if(++n>700){box.append(el('div','… (kalan farklar gizlendi)','warn'));break;}
+    const o=ops[i],d=el('div',(o[0]==='='?'  ':o[0]+' ')+o[1].slice(0,300));
+    d.style.whiteSpace='pre';if(o[0]==='+'){d.style.background='#12361f';d.style.color='#7ee787';}else if(o[0]==='-'){d.style.background='#3d1519';d.style.color='#ff9492';}else d.style.color='var(--t2)';
+    box.append(d);
+  }
+  out.append(box);
+}
+$('dfSelf').onclick=()=>{if(!needFile())return;askJs();const R=runAll(),f=mainHtmlName();showDiff(proj.orig[f],R.res[f].out,f+' (özgün → yamalı)');};
+$('dfGo').onclick=async()=>{const a=$('dfA').files[0],b=$('dfB').files[0];if(!a||!b)return alert('İki dosya seç.');showDiff(await a.text(),await b.text(),a.name+' → '+b.name);};
+
+/* ============ TOPLU DEĞİŞTİR ============ */
+const esc=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+function bkRe(){const f=$('bkFind').value;if(!f)throw new Error('Aranan boş');return $('bkRe').checked?(()=>{const m=f.match(/^\/([\s\S]*)\/([a-z]*)$/);return m?new RegExp(m[1],m[2].includes('g')?m[2]:m[2]+'g'):new RegExp(f,'g'+($('bkCase').checked?'':'i'));})():new RegExp(esc(f),'g'+($('bkCase').checked?'':'i'));}
+$('bkCount').onclick=()=>{if(!needFile())return;const o=$('bkOut');o.textContent='';
+  try{const re=bkRe();let t=0;Object.keys(proj.orig).forEach(f=>{const n=(proj.orig[f].match(re)||[]).length;t+=n;if(n)o.append(el('div','📄 '+f+': '+n+' yer'));});o.append(el('b',t?('Toplam '+t+' yer'):'Eşleşme yok',t?'ok':'warn'));}catch(e){o.textContent='⛔ '+e.message;}};
+$('bkAdd').onclick=()=>{if(!needFile())return;
+  try{const re=bkRe();const p={id:'toplu-'+uid(),on:true,name:'Toplu: '+$('bkFind').value.slice(0,25),target:'*',action:'regex',kind:'html',find:'/'+re.source+'/'+re.flags,content:$('bkRep').value,all:true};
+    const err=validatePatch(p);if(err)return alert(err);snap();P().push(p);save();refreshAll();alert('Yama olarak eklendi. Yamalar sekmesinden kapatıp geri alabilirsin.');}catch(e){alert(e.message);}};
+
+/* ============ PAKETLEYİCİ (PWA) ============ */
+function iconBlob(size,ch,color){return new Promise(r=>{const c=document.createElement('canvas');c.width=c.height=size;const g=c.getContext('2d');
+  g.fillStyle=color;g.beginPath();g.roundRect?g.roundRect(0,0,size,size,size*.2):g.rect(0,0,size,size);g.fill();
+  g.fillStyle='#fff';g.textAlign='center';g.textBaseline='middle';g.font=Math.round(size*.55)+'px system-ui,"Apple Color Emoji","Noto Color Emoji",sans-serif';g.fillText(ch,size/2,size/2+size*.04);
+  c.toBlob(r,'image/png');});}
+const SWT=v=>"var CACHE='"+v+"';\nvar FILES=['./','./index.html','./manifest.webmanifest'];\nself.addEventListener('install',function(e){e.waitUntil(caches.open(CACHE).then(function(c){return c.addAll(FILES).catch(function(){});}));self.skipWaiting();});\nself.addEventListener('activate',function(e){e.waitUntil(caches.keys().then(function(ks){return Promise.all(ks.filter(function(k){return k!==CACHE;}).map(function(k){return caches.delete(k);}));}));self.clients.claim();});\nself.addEventListener('fetch',function(e){if(e.request.method!=='GET')return;e.respondWith(fetch(e.request).then(function(r){var c=r.clone();caches.open(CACHE).then(function(x){x.put(e.request,c);});return r;}).catch(function(){return caches.match(e.request);}));});\n";
+$('pwGo').onclick=async()=>{
+  if(!needFile())return;if(!window.JSZip)return alert('ZIP için internet (JSZip) gerekli.');
+  askJs();const R=runAll(),f=mainHtmlName();let h=R.res[f].out;const nm=$('pwName').value.trim()||'Uygulama',sh=$('pwShort').value.trim()||nm.slice(0,12),col=$('pwColor').value,ch=$('pwIcon').value||'🎮';
+  const tags='<link rel="manifest" href="manifest.webmanifest">\n<meta name="theme-color" content="'+col+'">\n<meta name="mobile-web-app-capable" content="yes">\n<meta name="apple-mobile-web-app-capable" content="yes">\n<meta name="apple-mobile-web-app-title" content="'+sh.replace(/"/g,'')+'">\n<link rel="icon" href="icon-192.png">\n<link rel="apple-touch-icon" href="icon-192.png">';
+  const reg='<\u0073cript>if("serviceWorker"in navigator)addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});<\/script>';
+  const notes=[];
+  if(!/rel=["']manifest["']/i.test(h)){h=/<\/head>/i.test(h)?h.replace(/<\/head>/i,tags+'\n</head>'):tags+h;}else notes.push('Dosyada zaten manifest etiketi var, eklenmedi.');
+  if(!/serviceWorker\.register/.test(h)){h=/<\/body>/i.test(h)?h.replace(/<\/body>/i,reg+'\n</body>'):h+reg;}else notes.push('Dosyada zaten servis çalışanı kaydı var, eklenmedi.');
+  const man={name:nm,short_name:sh,start_url:'./',display:'standalone',background_color:'#111111',theme_color:col,icons:[{src:'icon-192.png',sizes:'192x192',type:'image/png'},{src:'icon-512.png',sizes:'512x512',type:'image/png'}]};
+  const z=new JSZip();z.file('index.html',h);z.file('manifest.webmanifest',JSON.stringify(man,null,2));z.file('sw.js',SWT('app-v1'));
+  z.file('icon-192.png',await iconBlob(192,ch,col));z.file('icon-512.png',await iconBlob(512,ch,col));
+  Object.keys(R.res).filter(x=>x!==f).forEach(x=>z.file(x,R.res[x].out));
+  dl('uygulama-paketi.zip',await z.generateAsync({type:'blob'}));
+  $('pwOut').textContent='✅ Paket indirildi: index.html, manifest, sw.js, 2 ikon. Hepsini sitenin aynı klasörüne yükle. '+notes.join(' ');
+};
+$('pwToApk').onclick=()=>show('v-apk');
+
+/* ============ TEST PANELİ ============ */
+function runTest(html,timeout){
+  return new Promise(res=>{
+    const fr=document.createElement('iframe');fr.setAttribute('sandbox','allow-scripts allow-same-origin');fr.style.cssText='position:fixed;left:-9999px;width:420px;height:800px;border:0';
+    const errs=[];
+    const onmsg=e=>{if(e.source===fr.contentWindow&&e.data&&e.data.uwpErr)errs.push(e.data.uwpErr);};window.addEventListener('message',onmsg);
+    const h=/<head[^>]*>/i.test(html)?html.replace(/<head[^>]*>/i,m=>m+CATCH):CATCH+html;
+    fr.srcdoc=h;document.body.append(fr);
+    setTimeout(()=>{
+      const checks=[];let W=null;
+      try{W=fr.contentWindow;const D=W.document;
+        checks.push(['Sayfa içerik gösteriyor',(D.body.innerText||'').trim().length>20]);
+        checks.push(['Tıklanabilir düğme var',D.querySelectorAll('button,a,[data-a]').length>0]);
+        checks.push(['JavaScript hatası yok',errs.length===0]);
+        let G=null;try{G=W.eval("(typeof S!=='undefined'&&typeof UI!=='undefined'&&typeof render==='function'&&typeof GROUPS!=='undefined')?1:0");}catch(e){}
+        if(G){
+          const bad=JSON.parse(W.eval("(function(){var keep=UI.tab,bad=[];GROUPS.forEach(function(g){g[2].forEach(function(t){try{UI.tab=t[0];render();var m=document.getElementById('main');if(!m||m.innerText.trim().length<20)bad.push(t[0]);}catch(e){bad.push(t[0]+'!');}});});try{UI.tab=keep;render();}catch(e){}return JSON.stringify(bad);})()"));
+          checks.push(['Oyun: tüm sekmeler açılıyor'+(bad.length?' (sorunlu: '+bad.join(', ')+')':''),bad.length===0]);
+          checks.push(['Oyun: harita verisi var',!!(W.HARITA&&W.HARITA.land)||'(harita.js yok, yedek düzen)']);
+          checks.push(['Oyun: sekmeler sırasında hata yok',errs.length===0]);
+        }
+      }catch(e){checks.push(['Test çalıştırılamadı: '+e.message,false]);}
+      window.removeEventListener('message',onmsg);fr.remove();res({checks:checks,errs:errs});
+    },timeout||4000);
+  });
+}
+$('tsGo').onclick=async()=>{
+  if(!needFile())return;const o=$('tsOut');o.textContent='⏳ Test çalışıyor (yaklaşık 10 sn)…';askJs();
+  const f=mainHtmlName(),R=runAll();
+  const a=await runTest(proj.orig[f]),b=await runTest(R.res[f].out);
+  o.textContent='';
+  const col=(t,x)=>{const c=el('div');c.append(el('b',t));x.checks.forEach(k=>c.append(el('div',(k[1]===true?'✅ ':k[1]===false?'⛔ ':'⚠️ ')+k[0],k[1]===false?'bad':k[1]===true?'ok':'warn')));
+    x.errs.slice(0,5).forEach(e=>c.append(el('pre','⚠ '+e,'bad')));return c;};
+  o.append(el('h4','Özgün dosya'),col('',a),el('h4','Yamalı sonuç'),col('',b));
+  const worse=b.checks.filter((k,i)=>k[1]===false&&a.checks[i]&&a.checks[i][1]!==false).length;
+  o.append(el('div',worse?'⛔ Yamalar '+worse+' kontrolü bozmuş görünüyor.':'✅ Yamalar kontrolleri bozmadı.',worse?'bad':'ok'));
+  window.__lastTest={orig:a,patched:b};
+};
+
+/* ============ KAYIT YEDEKLEYİCİ ============ */
+$('stList').onclick=()=>{const o=$('stOut');o.textContent='';
+  try{const n=localStorage.length;if(!n){o.textContent='Bu adreste kayıt yok. (Oyunla aynı adreste açtığından emin ol.)';return;}
+    for(let i=0;i<n;i++){const k=localStorage.key(i),v=localStorage.getItem(k)||'';o.append(el('div',k+' — '+Math.round(v.length/102.4)/10+' KB','it'));}
+  }catch(e){o.textContent='⛔ '+e.message;}};
+$('stExp').onclick=()=>{try{const d={uwpStore:1,origin:location.origin,t:Date.now(),keys:{}};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(/^uwp5_|^uwp6_/.test(k))continue;d.keys[k]=localStorage.getItem(k);}
+  dl('kayit-yedegi-'+new Date().toISOString().slice(0,10)+'.json',new Blob([JSON.stringify(d)],{type:'application/json'}));}catch(e){alert(e.message);}};
+$('stImp').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.uwpStore||!d.keys)throw new Error('Bu bir yedek dosyası değil.');
+  const ks=Object.keys(d.keys);if(!confirm(ks.length+' kayıt geri yüklenecek, aynı adlı mevcut kayıtların ÜZERİNE yazılır.\nÖnce mevcut durumun yedeğini almanı öneririm. Devam?'))return;
+  ks.forEach(k=>{if(typeof d.keys[k]==='string')localStorage.setItem(k,d.keys[k]);});alert('Geri yüklendi. Oyunu yenile.');}catch(err){alert('Yüklenemedi: '+err.message);}};r.readAsText(f);e.target.value='';};
+
+/* ============ YZ ASİSTANI ============ */
+const PROV={
+  openrouter:{n:'OpenRouter (tek anahtar, çok model)',base:'https://openrouter.ai/api/v1',kind:'oai'},
+  deepseek:{n:'DeepSeek',base:'https://api.deepseek.com/v1',kind:'oai'},
+  groq:{n:'Groq',base:'https://api.groq.com/openai/v1',kind:'oai'},
+  openai:{n:'OpenAI',base:'https://api.openai.com/v1',kind:'oai'},
+  anthropic:{n:'Anthropic (Claude)',base:'https://api.anthropic.com/v1',kind:'anth'},
+  gemini:{n:'Google Gemini',base:'https://generativelanguage.googleapis.com/v1beta',kind:'gem'},
+  ollama:{n:'Ollama (kendi bilgisayarın)',base:'http://localhost:11434/v1',kind:'oai',nokey:true},
+  custom:{n:'Özel (OpenAI uyumlu)',base:'',kind:'oai'}
+};
+const AIK='uwp6_ai';
+let AI={prov:'openrouter',base:PROV.openrouter.base,model:'',models:[],msgs:[],ctx:[],ctl:null};
+try{const s=JSON.parse(localStorage.getItem(AIK)||'{}');if(s.prov&&PROV[s.prov]){AI.prov=s.prov;AI.base=s.base||PROV[s.prov].base;AI.model=s.model||'';if(s.key){AI.key=s.key;$('aiRem').checked=true;}}}catch(e){}
+try{if(!AI.key){const k=sessionStorage.getItem('uwp6_key');if(k)AI.key=k;}}catch(e){}
+const SYS="Sen telefondan çalışan bir web geliştirme asistanısın. Kullanıcı Türkçe konuşur; Türkçe, kısa ve net cevap ver. Kullanıcı büyük bir tek dosyalı web oyunu/uygulaması üzerinde çalışır ve değişiklikleri 'yama' ile yapar. Kod değişikliği önerirken MÜMKÜNSE yalnızca şu biçimde TEK bir JSON kod bloğu ver:\n```json\n{\"name\":\"kısa ad\",\"target\":\"index.html\",\"action\":\"ins-before|ins-after|replace|regex\",\"kind\":\"js|css|html\",\"find\":\"dosyada TAM OLARAK bir kez geçen metin\",\"content\":\"eklenecek ya da yeni metin\"}\n```\n'find' alanı verilen dosya parçalarında gördüğün gerçek bir metin olmalı; uydurma. Bütün dosyayı yeniden yazma. Emin değilsen önce soru sor. Anahtar, şifre, para/hile gibi şeyler konusunda dikkatli ol ve riskli kodu uyar.";
+function aiSave(){try{const s={prov:AI.prov,base:AI.base,model:AI.model};if($('aiRem').checked&&AI.key)s.key=AI.key;localStorage.setItem(AIK,JSON.stringify(s));if(AI.key&&!$('aiRem').checked)sessionStorage.setItem('uwp6_key',AI.key);}catch(e){}}
+function aiUI(){
+  const s=$('aiProv');s.textContent='';Object.keys(PROV).forEach(k=>{const o=el('option',PROV[k].n);o.value=k;if(k===AI.prov)o.selected=true;s.append(o);});
+  $('aiBase').value=AI.base;$('aiKey').value=AI.key||'';$('aiModel').value=AI.model||'';aiModels();
+}
+$('aiProv').onchange=e=>{AI.prov=e.target.value;AI.base=PROV[AI.prov].base;AI.models=[];$('aiBase').value=AI.base;aiModels();aiSave();};
+$('aiBase').onchange=e=>{AI.base=e.target.value.trim().replace(/\/+$/,'');aiSave();};
+$('aiKey').onchange=e=>{AI.key=e.target.value.trim();aiSave();};
+$('aiRem').onchange=()=>{if(!$('aiRem').checked){try{const s=JSON.parse(localStorage.getItem(AIK)||'{}');delete s.key;localStorage.setItem(AIK,JSON.stringify(s));}catch(e){}}aiSave();};
+$('aiModel').onchange=e=>{AI.model=e.target.value.trim();aiSave();};
+$('aiModelSel').onchange=e=>{AI.model=e.target.value;$('aiModel').value=AI.model;aiSave();};
+['aiCode','aiFree','aiQ'].forEach(i=>$(i).oninput=aiModels);
+const CODEY=/coder|code|codestral|devstral|deepseek|claude|gpt-?[45]|o[134]-|gemini|qwen|kimi|glm|llama-?3|mistral|grok/i;
+function aiModels(){
+  const s=$('aiModelSel');s.textContent='';const q=$('aiQ').value.trim().toLowerCase();
+  let L=AI.models.slice();
+  if($('aiCode').checked)L=L.filter(m=>CODEY.test(m.id));
+  if($('aiFree').checked)L=L.filter(m=>m.free);
+  if(q)L=L.filter(m=>(m.id+' '+(m.name||'')).toLowerCase().includes(q));
+  L.sort((a,b)=>(b.free-a.free)||a.id.localeCompare(b.id));
+  const o0=el('option',L.length?('— '+L.length+' model —'):'(liste boş; "Modelleri getir")');o0.value='';s.append(o0);
+  L.slice(0,400).forEach(m=>{const o=el('option',(m.free?'🆓 ':'')+m.id);o.value=m.id;if(m.id===AI.model)o.selected=true;s.append(o);});
+}
+function aiErr(e,r){
+  if(e&&e.name==='AbortError')return 'Durduruldu.';
+  if(r){if(r.status===401||r.status===403)return 'Anahtar reddedildi ('+r.status+'). Anahtarı ve sağlayıcıyı kontrol et.';if(r.status===429)return 'Kullanım sınırına takıldın (429). Biraz bekle ya da başka model seç.';if(r.status===404)return 'Adres ya da model bulunamadı (404).';return 'Sağlayıcı hatası '+r.status+'.';}
+  return 'Bağlanılamadı. '+(AI.prov==='ollama'?'Ollama çalışıyor mu? OLLAMA_ORIGINS=* ayarlandı mı? Adres doğru mu? (https sayfadan http adresi engellenebilir.)':'İnternet, adres ya da tarayıcı güvenlik (CORS) engeli olabilir.');
+}
+async function aiJson(url,opt){let r;try{r=await fetch(url,opt);}catch(e){throw new Error(aiErr(e));}
+  const t=await r.text();let j=null;try{j=JSON.parse(t);}catch(e){}
+  if(!r.ok){const m=(j&&(j.error&&(j.error.message||j.error)||j.message))||t.slice(0,160);throw new Error(aiErr(null,r)+(m?' — '+String(m).slice(0,200):''));}
+  return j;}
+const hdrs=()=>{const P=PROV[AI.prov];const h={'Content-Type':'application/json'};
+  if(P.kind==='anth'){h['x-api-key']=AI.key||'';h['anthropic-version']='2023-06-01';h['anthropic-dangerous-direct-browser-access']='true';}
+  else if(P.kind==='oai'&&AI.key)h['Authorization']='Bearer '+AI.key;return h;};
+$('aiList').onclick=async()=>{
+  const P=PROV[AI.prov],info=$('aiInfo');AI.key=$('aiKey').value.trim();AI.base=$('aiBase').value.trim().replace(/\/+$/,'');
+  if(!AI.base)return alert('Adres boş.');
+  if(!P.nokey&&!AI.key&&AI.prov!=='openrouter'&&AI.prov!=='custom')return alert('Bu sağlayıcı için API anahtarı gerekli.');
+  info.textContent='⏳ Modeller getiriliyor…';
+  try{
+    let L=[];
+    if(P.kind==='gem'){const j=await aiJson(AI.base+'/models?pageSize=200&key='+encodeURIComponent(AI.key),{});L=(j.models||[]).filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent')).map(m=>({id:m.name.replace(/^models\//,''),name:m.displayName,free:false}));}
+    else{const j=await aiJson(AI.base+'/models',{headers:hdrs()});
+      L=(j.data||[]).map(m=>({id:m.id,name:m.name||m.display_name||'',free:!!(m.pricing&&String(m.pricing.prompt)==='0'&&String(m.pricing.completion)==='0')||/:free$/.test(m.id)||AI.prov==='ollama'}));}
+    AI.models=L;aiModels();aiSave();info.textContent='✅ '+L.length+' model bulundu. 🆓 = ücretsiz'+(AI.prov==='ollama'?' (yerel)':'')+'.';
+  }catch(e){info.textContent='⛔ '+e.message;}
+};
+function ctxDraw(){const c=$('aiCtx');c.textContent='';if(!AI.ctx.length){c.textContent='Ek yok.';return;}AI.ctx.forEach((x,i)=>{const d=el('div','📎 '+x.t+' ('+x.s.length+' karakter) ','it');const b=el('button','✕','btn');b.onclick=()=>{AI.ctx.splice(i,1);ctxDraw();};d.append(b);c.append(d);});}
+$('aiAttF').onclick=()=>{if(!needFile())return;const q=$('aiFind').value.trim();if(!q)return alert('Aranacak metin yaz.');
+  const f=mainHtmlName(),L=proj.orig[f].split('\n');let re;try{re=q.match(/^\/([\s\S]*)\/([a-z]*)$/)?parseRe(q):new RegExp(esc(q),'i');}catch(e){return alert(e.message);}
+  const hits=[];for(let i=0;i<L.length&&hits.length<6;i++)if(re.test(L[i]))hits.push(i);
+  if(!hits.length)return alert('Dosyada eşleşme yok.');
+  let out='',n=0;const used=new Set();
+  hits.forEach(i=>{const a=Math.max(0,i-10),b=Math.min(L.length-1,i+10);if(used.has(a))return;used.add(a);n++;out+='--- '+f+' satır '+(a+1)+'-'+(b+1)+' ---\n'+L.slice(a,b+1).map(l=>l.slice(0,240)).join('\n')+'\n';});
+  AI.ctx.push({t:'"'+q.slice(0,20)+'" çevresi ('+n+' parça)',s:out.slice(0,9000)});ctxDraw();};
+$('aiAttP').onclick=()=>{AI.ctx.push({t:'Yama listesi',s:JSON.stringify(P().map(p=>({name:p.name,target:p.target,action:p.action,kind:p.kind,find:p.find,content:p.content.slice(0,600)})),null,1).slice(0,8000)});ctxDraw();};
+$('aiAttE').onclick=()=>{const t=window.__lastTest;const s=t?'Test sonucu (yamalı): '+JSON.stringify(t.patched.checks)+'\nHatalar: '+JSON.stringify(t.patched.errs.slice(0,8)):'Önizleme hataları: '+JSON.stringify(errs.slice(-8));AI.ctx.push({t:'Son hata/test',s:s.slice(0,6000)});ctxDraw();};
+$('aiAttC').onclick=()=>{AI.ctx=[];ctxDraw();};
+function aiRender(){
+  const L=$('aiLog');L.textContent='';
+  AI.msgs.forEach(m=>{
+    const d=el('div');d.style.cssText='margin:8px 0;padding:10px;border-radius:10px;background:'+(m.role==='user'?'var(--b3)':'var(--b2)')+';border:1px solid var(--ln)';
+    d.append(el('b',m.role==='user'?'Sen':'YZ','dim'));
+    const parts=String(m.content).split(/```/);
+    parts.forEach((p,i)=>{
+      if(i%2===0){if(p.trim()){const t=el('div',p.trim());t.style.whiteSpace='pre-wrap';d.append(t);}}
+      else{const m2=p.match(/^([a-zA-Z]*)\n?([\s\S]*)$/),lang=(m2[1]||'').toLowerCase(),code=m2[2].replace(/\n$/,'');
+        const pre=el('pre',code);pre.style.cssText='background:#0b0e13;padding:8px;border-radius:8px;overflow-x:auto';d.append(pre);
+        const row=el('div');const cp=el('button','Kopyala','btn');cp.onclick=()=>{try{navigator.clipboard.writeText(code);cp.textContent='✓';}catch(e){}};row.append(cp);
+        if(m.role==='assistant'){
+          let pj=null;if(lang==='json'){try{pj=JSON.parse(code);}catch(e){}}
+          if(pj&&pj.action&&pj.find!==undefined){const b=el('button','➕ Yama formuna aktar','btn g');b.onclick=()=>prefill(pj);row.append(b);}
+          else if(lang==='js'||lang==='javascript'){const b=el('button','➕ Yama olarak aktar (</body> öncesi)','btn g');b.onclick=()=>prefill({name:'YZ önerisi',target:'*.html',action:'ins-before',kind:'js',find:'</body>',content:code});row.append(b);}
+          else if(lang==='css'){const b=el('button','➕ Yama olarak aktar (CSS)','btn g');b.onclick=()=>prefill({name:'YZ CSS',target:'*.html',action:'ins-before',kind:'css',find:'</head>',content:code});row.append(b);}
+        }
+        d.append(row);}
+    });
+    L.append(d);
+  });
+  L.lastChild&&L.lastChild.scrollIntoView({block:'nearest'});
+}
+function prefill(o){
+  const map={'insert-after':'ins-after','insert-before':'ins-before'};
+  openForm(-1);show('v-patch');
+  $('fName').value=String(o.name||'YZ önerisi').slice(0,60);$('fTarget').value=String(o.target||'*.html');
+  $('fAct').value=['ins-after','ins-before','replace','regex'].includes(map[o.action]||o.action)?(map[o.action]||o.action):'ins-before';
+  $('fKind').value=['js','css','html'].includes(o.kind)?o.kind:'html';$('fFind').value=String(o.find||'');$('fCont').value=String(o.content||'');formUI();
+  $('fMsg').className='warn';$('fMsg').textContent='⚠️ YZ önerisi: okuyup kontrol et, sonra Kaydet. Hiçbir şey otomatik uygulanmaz.';
+}
+async function aiAsk(){
+  const text=$('aiIn').value.trim();if(!text)return;
+  AI.key=$('aiKey').value.trim();AI.base=$('aiBase').value.trim().replace(/\/+$/,'');AI.model=($('aiModel').value||$('aiModelSel').value||'').trim();
+  if(!AI.base||!AI.model)return alert('Adres ve model gerekli. "Modelleri getir" ile seç ya da elle yaz.');
+  if(!PROV[AI.prov].nokey&&!AI.key&&AI.prov!=='custom')return alert('API anahtarı gerekli.');
+  aiSave();
+  let content=text;if(AI.ctx.length){content+='\n\n[Ekler]\n'+AI.ctx.map(x=>'### '+x.t+'\n'+x.s).join('\n');}
+  AI.msgs.push({role:'user',content:content});$('aiIn').value='';AI.ctx=[];ctxDraw();
+  const wait={role:'assistant',content:'⏳ yazıyor…'};AI.msgs.push(wait);aiRender();
+  AI.ctl=new AbortController();const P=PROV[AI.prov];const hist=AI.msgs.slice(0,-1).slice(-12);
+  try{
+    let out='';
+    if(P.kind==='oai'){const j=await aiJson(AI.base+'/chat/completions',{method:'POST',headers:hdrs(),signal:AI.ctl.signal,body:JSON.stringify({model:AI.model,temperature:0.2,messages:[{role:'system',content:SYS}].concat(hist.map(m=>({role:m.role,content:m.content})))})});
+      out=(j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content)||'';}
+    else if(P.kind==='anth'){const j=await aiJson(AI.base+'/messages',{method:'POST',headers:hdrs(),signal:AI.ctl.signal,body:JSON.stringify({model:AI.model,max_tokens:4096,system:SYS,messages:hist.map(m=>({role:m.role,content:m.content}))})});
+      out=(j.content||[]).map(c=>c.text||'').join('');}
+    else{const j=await aiJson(AI.base+'/models/'+encodeURIComponent(AI.model)+':generateContent?key='+encodeURIComponent(AI.key),{method:'POST',headers:{'Content-Type':'application/json'},signal:AI.ctl.signal,body:JSON.stringify({systemInstruction:{parts:[{text:SYS}]},contents:hist.map(m=>({role:m.role==='user'?'user':'model',parts:[{text:m.content}]}))})});
+      out=((j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts)||[]).map(p=>p.text||'').join('');}
+    wait.content=out||'(boş cevap geldi)';
+  }catch(e){wait.content='⛔ '+(e.name==='AbortError'?'Durduruldu.':e.message);}
+  AI.ctl=null;aiRender();
+}
+$('aiSend').onclick=aiAsk;
+$('aiStop').onclick=()=>{if(AI.ctl)AI.ctl.abort();};
+$('aiClr').onclick=()=>{AI.msgs=[];aiRender();};
+aiUI();
+
+/* ============================================================
+   ============ 🖥️ HTML GÖRÜNTÜLEYİCİ (YENİ) ============
+   ============================================================ */
+const H = {
+  tab:'html',
+  code:{
+    html:'<h1>Merhaba Dünya</h1>\n<p>Bu bir önizlemedir.</p>\n<button onclick="alert(\'Tıklandı!\')">Tıkla</button>',
+    css:'body{font-family:system-ui;padding:20px;background:#fff;color:#333}\nh1{color:#c8102e}\nbutton{padding:8px 16px;background:#c8102e;color:#fff;border:none;border-radius:6px;cursor:pointer}',
+    js:'console.log("Merhaba, konsol!");'
+  },
+  safe:true,
+  fullscreen:false
+};
+
+function buildHtmlDoc(){
+  const c = H.code;
+  return '<!DOCTYPE html>\n<html lang="tr">\n<head>\n<meta charset="UTF-8">\n'
+    + '<meta name="viewport" content="width=device-width,initial-scale=1">\n'
+    + '<style>\n' + c.css + '\n</style>\n</head>\n<body>\n' + c.html
+    + '\n<script>\n' + c.js + '\n<\/script>\n</body>\n</html>';
+}
+
+function updateHtmlPreview(){
+  const f = $('edtFrame');
+  if(f) f.srcdoc = buildHtmlDoc();
+}
+
+function toast(msg, kind='info'){
+  const t = document.createElement('div');
+  t.className = 'toast ' + (kind === 'ok' ? 'ok' : kind === 'bad' ? 'bad' : '');
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2400);
+}
+
+function copyText(text){
+  if(navigator.clipboard && window.isSecureContext){
+    return navigator.clipboard.writeText(text).then(()=>true).catch(()=>fbCopy(text));
+  }
+  return Promise.resolve(fbCopy(text));
+}
+function fbCopy(text){
   try{
     const ta = document.createElement('textarea');
-    ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
     document.body.appendChild(ta); ta.select();
     const ok = document.execCommand('copy'); ta.remove(); return ok;
   }catch(e){ return false; }
 }
-function download(filename, content, mime='text/plain'){
-  const blob = content instanceof Blob ? content : new Blob([content], {type:mime});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = filename;
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 5000);
+
+function syncEditor(){
+  const ta = $('edtArea');
+  if(ta) H.code[H.tab] = ta.value;
 }
 
-/* ==================== SEKME YÖNETİMİ ==================== */
-function renderNav(){
-  document.querySelectorAll('#nav button').forEach(b=>{
-    b.classList.toggle('on', b.dataset.tab === A.tab);
-  });
-}
+// Tab butonları
+document.querySelectorAll('#edtTabs button').forEach(btn=>{
+  btn.onclick = () => {
+    syncEditor();
+    H.tab = btn.dataset.edt;
+    document.querySelectorAll('#edtTabs button').forEach(b=>b.classList.toggle('on',b.dataset.edt===H.tab));
+    const ta = $('edtArea');
+    if(ta){ ta.value = H.code[H.tab]; }
+  };
+});
 
-function render(){
-  renderNav();
-  const fn = {html:renderHtml, pwa:renderPwa, guide:renderGuide}[A.tab] || renderHtml;
-  $('main').innerHTML = fn();
-  if(A.tab === 'html') bindHtmlEditor();
-  if(A.tab === 'pwa')  bindPwaEvents();
-}
+// Editör input
+document.addEventListener('input', e=>{
+  if(e.target && e.target.id === 'edtArea'){
+    H.code[H.tab] = e.target.value;
+    clearTimeout(window.__htmlAutoT);
+    window.__htmlAutoT = setTimeout(updateHtmlPreview, 400);
+  }
+});
 
-/* ==================== HTML GÖRÜNTÜLEYİCİ ==================== */
-function buildDoc(){
-  const c = A.html.code;
-  return '<!DOCTYPE html>\n<html lang="tr">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<style>\n'
-    + c.css + '\n</style>\n</head>\n<body>\n' + c.html
-    + '\n<script>\n' + c.js + '\n<\/script>\n</body>\n</html>';
-}
+// Butonlar
+document.addEventListener('click', e=>{
+  const id = e.target && e.target.id;
+  if(!id) return;
+  if(id === 'edtRender'){ syncEditor(); updateHtmlPreview(); toast('Önizleme güncellendi','ok'); }
+  else if(id === 'edtFile'){ $('edtFileIn').click(); }
+  else if(id === 'edtDownload'){
+    syncEditor();
+    dl('preview.html', new Blob([buildHtmlDoc()], {type:'text/html'}));
+    toast('preview.html indirildi','ok');
+  }
+  else if(id === 'edtCopy'){
+    syncEditor();
+    copyText(buildHtmlDoc()).then(ok => toast(ok?'Kopyalandı':'Kopyalama başarısız', ok?'ok':'bad'));
+  }
+  else if(id === 'edtClear'){
+    if(!confirm('Tüm editör içeriği silinsin mi?')) return;
+    H.code = {html:'', css:'', js:''};
+    $('edtArea').value = '';
+    updateHtmlPreview();
+    toast('Temizlendi','ok');
+  }
+  else if(id === 'edtFullscreen'){
+    H.fullscreen = !H.fullscreen;
+    $('edtWrap').classList.toggle('fullscreen', H.fullscreen);
+    toast(H.fullscreen?'Tam ekran':'Normal','ok');
+  }
+  else if(id === 'edtReload'){
+    updateHtmlPreview(); toast('Yenilendi','ok');
+  }
+});
 
-function renderHtml(){
-  const h = A.html;
-  const tabs = ['html','css','js'].map(t =>
-    `<button class="${h.editorTab===t?'on':''}" data-editor-tab="${t}">${t.toUpperCase()}</button>`
-  ).join('');
-
-  return `
-  <div class="card">
-    <h2>🖥️ HTML Görüntüleyici</h2>
-    <p>HTML / CSS / JS kodunu yaz, önizle. Dosya yükleyebilir veya aşağıdaki örneği kullanabilirsin.</p>
-
-    <div class="editor-tabs" style="margin-top:12px">${tabs}</div>
-    <textarea class="editor-area" id="editor" spellcheck="false" autocomplete="off">${esc(h.code[h.editorTab])}</textarea>
-
-    <div class="row">
-      <label>Sandbox modu:</label>
-      <select id="sandboxMode" style="max-width:300px">
-        <option value="safe" ${h.safe?'selected':''}>🔒 Güvenli (sadece allow-scripts)</option>
-        <option value="full" ${!h.safe?'selected':''}>⚠️ Tam (allow-scripts + allow-same-origin)</option>
-      </select>
-    </div>
-
-    <div class="btns">
-      <button class="btn primary" id="btnRender">▶️ Çalıştır</button>
-      <button class="btn" id="btnFile">📂 Dosya Yükle</button>
-      <button class="btn" id="btnDownload">💾 İndir (.html)</button>
-      <button class="btn" id="btnCopy">📋 Kopyala</button>
-      <button class="btn danger sm" id="btnClear">🗑️ Temizle</button>
-      <input type="file" id="fileInput" accept=".html,.htm,.css,.js,.txt" style="display:none">
-    </div>
-
-    <div class="preview-wrap ${h.fullscreen?'fullscreen':''}" id="previewWrap">
-      <div class="controls">
-        <button id="btnFullscreen" type="button">⛶ Tam Ekran</button>
-        <button id="btnReload" type="button">🔄</button>
-      </div>
-      <iframe class="preview" id="previewFrame"
-        sandbox="${h.safe?'allow-scripts':'allow-scripts allow-same-origin'}"
-        title="Önizleme"></iframe>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>💡 İpuçları</h2>
-    <ul>
-      <li><b>Güvenli mod</b>: Önizlenen kod ana sayfaya ve çerezlere erişemez. Test için önerilir.</li>
-      <li><b>Tam mod</b>: Önizlenen kod kendi <code>localStorage</code>'ını kullanabilir. Sadece güvendiğin kodlar için.</li>
-      <li><code>alert</code>, <code>console.log</code> gibi tarayıcı API'leri çalışır.</li>
-      <li>Dosya yüklerken HTML seçersen HTML sekmesine, CSS seçersen CSS sekmesine, JS seçersen JS sekmesine yerleşir.</li>
-      <li>İndirdiğin dosya <code>preview.html</code> olarak tarayıcıda açılabilir.</li>
-    </ul>
-  </div>`;
-}
-
-function updatePreview(){
-  const f = $('previewFrame');
-  if(f) f.srcdoc = buildDoc();
-}
-
-function bindHtmlEditor(){
-  const ta = $('editor');
-  if(!ta) return;
-
-  let autoT = null;
-  ta.addEventListener('input', () => {
-    A.html.code[A.html.editorTab] = ta.value;
-    clearTimeout(autoT);
-    autoT = setTimeout(updatePreview, 400);
-  });
-
-  $('btnRender')?.addEventListener('click', () => {
-    A.html.code[A.html.editorTab] = ta.value;
-    updatePreview();
-    toast('Önizleme güncellendi', 'ok');
-  });
-
-  $('btnFile')?.addEventListener('click', () => $('fileInput').click());
-
-  $('fileInput')?.addEventListener('change', e => {
+document.addEventListener('change', e=>{
+  if(e.target && e.target.id === 'edtFileIn'){
     const file = e.target.files[0]; if(!file) return;
     const reader = new FileReader();
     reader.onload = ev => {
       const text = ev.target.result;
       const ext = (file.name.split('.').pop() || '').toLowerCase();
-      if(ext === 'css'){ A.html.code.css = text; A.html.editorTab = 'css'; }
-      else if(ext === 'js'){ A.html.code.js = text; A.html.editorTab = 'js'; }
-      else { A.html.code.html = text; A.html.editorTab = 'html'; }
-      render();
-      toast(file.name + ' yüklendi', 'ok');
+      if(ext === 'css'){ H.code.css = text; H.tab = 'css'; }
+      else if(ext === 'js'){ H.code.js = text; H.tab = 'js'; }
+      else { H.code.html = text; H.tab = 'html'; }
+      document.querySelectorAll('#edtTabs button').forEach(b=>b.classList.toggle('on',b.dataset.edt===H.tab));
+      const ta = $('edtArea'); if(ta) ta.value = H.code[H.tab];
+      updateHtmlPreview();
+      toast(file.name + ' yüklendi','ok');
     };
     reader.readAsText(file);
-  });
+    e.target.value = '';
+  }
+  if(e.target && e.target.id === 'edtSandbox'){
+    H.safe = e.target.value === 'safe';
+    const f = $('edtFrame');
+    if(f) f.setAttribute('sandbox', H.safe?'allow-scripts':'allow-scripts allow-same-origin');
+    updateHtmlPreview();
+  }
+});
 
-  $('btnDownload')?.addEventListener('click', () => {
-    A.html.code[A.html.editorTab] = ta.value;
-    download('preview.html', buildDoc(), 'text/html');
-    toast('preview.html indirildi', 'ok');
-  });
+/* ============================================================
+   ============ 📱 APK DÖNÜŞTÜRÜCÜ (YENİ) ============
+   ============================================================ */
+const APK = { mode:'pwa' };
 
-  $('btnCopy')?.addEventListener('click', () => {
-    copyToClipboard(buildDoc()).then(ok => toast(ok?'Kod kopyalandı':'Kopyalama başarısız', ok?'ok':'bad'));
-  });
-
-  $('btnClear')?.addEventListener('click', () => {
-    if(!confirm('Tüm editör içeriği silinsin mi?')) return;
-    A.html.code = {html:'', css:'', js:''};
-    render();
-    toast('Temizlendi', 'ok');
-  });
-
-  $('btnFullscreen')?.addEventListener('click', () => {
-    A.html.fullscreen = !A.html.fullscreen;
-    $('previewWrap').classList.toggle('fullscreen', A.html.fullscreen);
-    toast(A.html.fullscreen?'Tam ekran':'Normal mod', 'ok');
-  });
-
-  $('btnReload')?.addEventListener('click', () => { updatePreview(); toast('Yenilendi', 'ok'); });
-
-  $('sandboxMode')?.addEventListener('change', e => {
-    A.html.safe = e.target.value === 'safe';
-    const f = $('previewFrame');
-    if(f) f.setAttribute('sandbox', A.html.safe?'allow-scripts':'allow-scripts allow-same-origin');
-    updatePreview();
-  });
-
-  updatePreview();
-}
-
-/* ==================== PWA / APK ==================== */
-function renderPwa(){
-  const p = A.pwa;
-  return `
-  <div class="card">
-    <h2>📦 PWA Manifest Oluştur</h2>
-    <p>Uygulama bilgilerini doldur, manifest.json ve service worker hazır kodu oluşturulsun.</p>
-
-    <div class="grid two">
-      <div>
-        <label style="display:block;margin-bottom:4px;font-size:13px;color:var(--tx2)">Uygulama adı</label>
-        <input type="text" id="pwaName" value="${esc(p.name)}">
-      </div>
-      <div>
-        <label style="display:block;margin-bottom:4px;font-size:13px;color:var(--tx2)">Kısa ad</label>
-        <input type="text" id="pwaShort" value="${esc(p.short)}">
-      </div>
-      <div>
-        <label style="display:block;margin-bottom:4px;font-size:13px;color:var(--tx2)">Açıklama</label>
-        <input type="text" id="pwaDesc" value="${esc(p.desc)}">
-      </div>
-      <div>
-        <label style="display:block;margin-bottom:4px;font-size:13px;color:var(--tx2)">Başlangıç URL</label>
-        <input type="text" id="pwaStart" value="${esc(p.startUrl)}">
-      </div>
-      <div>
-        <label style="display:block;margin-bottom:4px;font-size:13px;color:var(--tx2)">Tema rengi</label>
-        <input type="color" id="pwaTheme" value="${p.theme}">
-      </div>
-      <div>
-        <label style="display:block;margin-bottom:4px;font-size:13px;color:var(--tx2)">Arka plan</label>
-        <input type="color" id="pwaBg" value="${p.bg}">
-      </div>
-      <div>
-        <label style="display:block;margin-bottom:4px;font-size:13px;color:var(--tx2)">Ekran modu</label>
-        <select id="pwaDisplay">
-          <option value="standalone" ${p.display==='standalone'?'selected':''}>Standalone (önerilen)</option>
-          <option value="fullscreen" ${p.display==='fullscreen'?'selected':''}>Fullscreen</option>
-          <option value="minimal-ui" ${p.display==='minimal-ui'?'selected':''}>Minimal UI</option>
-          <option value="browser" ${p.display==='browser'?'selected':''}>Browser</option>
-        </select>
-      </div>
-      <div>
-        <label style="display:block;margin-bottom:4px;font-size:13px;color:var(--tx2)">İkon emoji</label>
-        <input type="text" id="pwaIconEmoji" value="${esc(p.iconEmoji)}" maxlength="4">
-      </div>
-    </div>
-
-    <div class="row" style="margin-top:10px">
-      <label><input type="checkbox" id="pwaIncludeIndex" ${p.includeIndex?'checked':''}> index.html ekle (HTML Görüntüleyici içeriği)</label>
-    </div>
-
-    <div class="btns">
-      <button class="btn primary" id="btnGenerate">⚙️ Manifest + SW Oluştur</button>
-      <button class="btn success" id="btnDownloadPwa">📦 PWA ZIP İndir</button>
-      <button class="btn info" id="btnOpenPwabuilder">🚀 PWABuilder'da Aç</button>
-    </div>
-  </div>
-
-  <div class="card" id="pwaOutput" style="display:none">
-    <h2>✅ Oluşturulan Dosyalar</h2>
-    <div id="pwaFiles"></div>
-  </div>
-
-  <div class="card">
-    <h2>📱 APK Dönüştürme Yöntemleri</h2>
-    <p>PWA hazır olduğunda APK üretmek için dört yol var. Her biri için adım adım rehber ve hazır komutlar aşağıda.</p>
-
-    <div class="btns" style="margin-bottom:12px">
-      <button class="btn ${A.apk.mode==='pwa'?'primary':''}" data-apk="pwa">🥇 PWABuilder (Kolay)</button>
-      <button class="btn ${A.apk.mode==='bubble'?'primary':''}" data-apk="bubble">🫧 Bubblewrap</button>
-      <button class="btn ${A.apk.mode==='capacitor'?'primary':''}" data-apk="capacitor">⚡ Capacitor</button>
-      <button class="btn ${A.apk.mode==='webview'?'primary':''}" data-apk="webview">🧩 Android WebView</button>
-    </div>
-
-    <div id="apkContent"></div>
-  </div>
-
-  <div class="card">
-    <h2>📥 HTML ZIP Olarak İndir (APK için)</h2>
-    <p>HTML Görüntüleyici'deki içeriği bir web sitesi olarak ZIP'leyip indir. Bu ZIP'i bir sunucuya atarsan PWA/APK için hazır olur.</p>
-    <div class="btns">
-      <button class="btn success" id="btnDownloadZip">📦 ZIP Olarak İndir</button>
-    </div>
-  </div>`;
-}
+document.querySelectorAll('#apkModes button').forEach(b=>{
+  b.onclick = () => {
+    APK.mode = b.dataset.apk;
+    document.querySelectorAll('#apkModes button').forEach(x=>x.classList.toggle('on',x.dataset.apk===APK.mode));
+    renderApkContent();
+  };
+});
 
 function renderApkContent(){
-  const mode = A.apk.mode;
-  const el = $('apkContent');
-  if(!el) return;
-
+  const el = $('apkContent'); if(!el) return;
+  const mode = APK.mode;
   const contents = {
     pwa: `
       <h3>🥇 PWABuilder (En Kolay)</h3>
-      <p>Google'ın resmi aracı. Sitenin URL'sini ver, APK + AAB üretir.</p>
+      <p class="dim">Google'ın resmi aracı. Sitenin URL'sini ver, APK + AAB üretir.</p>
       <ol class="steps">
-        <li>HTML dosyalarını bir web sunucusuna (GitHub Pages, Netlify, Vercel) yükle.</li>
-        <li><a href="https://www.pwabuilder.com/" target="_blank" rel="noopener" style="color:var(--gold)">pwabuilder.com</a> adresine git.</li>
+        <li>Yukarıdaki "Uygulama paketleyici (PWA)" ile ZIP oluştur ve indir.</li>
+        <li>ZIP'i bir web sunucusuna yükle (GitHub Pages, Netlify, Vercel).</li>
+        <li><a class="lnk" href="https://www.pwabuilder.com/" target="_blank" rel="noopener">pwabuilder.com</a> adresine git.</li>
         <li>Site URL'sini gir ve <b>Start</b>'a bas.</li>
         <li>Paketleme için <b>Android</b>'i seç.</li>
-        <li>Paket adı, imza anahtarı bilgilerini doldur.</li>
+        <li>Paket adı, imza bilgilerini doldur.</li>
         <li>İndir → <code>.apk</code> (test) veya <code>.aab</code> (Play Store).</li>
       </ol>
-      <div class="btns">
-        <a href="https://www.pwabuilder.com/" target="_blank" rel="noopener" class="btn primary">🚀 PWABuilder'ı Aç</a>
+      <div class="row">
+        <a class="btn p" href="https://www.pwabuilder.com/" target="_blank" rel="noopener" style="text-decoration:none">🚀 PWABuilder'ı Aç</a>
       </div>`,
     bubble: `
       <h3>🫧 Bubblewrap (Google CLI)</h3>
-      <p>Google'ın resmi komut satırı aracı. TWA (Trusted Web Activity) üretir. Node.js gerekir.</p>
-      <div class="code-block"><button class="copy-btn" data-copy="npm i -g @bubblewrap/cli">Kopyala</button>npm i -g @bubblewrap/cli</div>
-      <p>Sonra:</p>
-      <div class="code-block"><button class="copy-btn" data-copy="bubblewrap init --manifest https://SITEN/manifest.json">Kopyala</button>bubblewrap init --manifest https://SITEN/manifest.json</div>
-      <p>APK üretmek için:</p>
-      <div class="code-block"><button class="copy-btn" data-copy="bubblewrap build">Kopyala</button>bubblewrap build</div>
+      <p class="dim">Google'ın resmi komut satırı aracı. TWA üretir. Node.js gerekir.</p>
+      <div class="code-block"><button class="cp" data-cp="npm i -g @bubblewrap/cli">Kopyala</button>npm i -g @bubblewrap/cli</div>
+      <p class="dim">PWA'nın yayında olduğu URL ile başlat:</p>
+      <div class="code-block"><button class="cp" data-cp="bubblewrap init --manifest https://SITEN/manifest.json">Kopyala</button>bubblewrap init --manifest https://SITEN/manifest.json</div>
+      <p class="dim">APK üret:</p>
+      <div class="code-block"><button class="cp" data-cp="bubblewrap build">Kopyala</button>bubblewrap build</div>
       <p class="dim">İmza anahtarı oluşturur, imzalar ve <code>app-release-signed.apk</code> üretir.</p>`,
     capacitor: `
-      <h3>⚡ Capacitor (Hibrit Uygulama)</h3>
-      <p>HTML'yi Android/iOS uygulamasına paketler. En esnek yol.</p>
-      <div class="code-block"><button class="copy-btn" data-copy="npm init @capacitor/app">Kopyala</button>npm init @capacitor/app</div>
-      <p>Proje klasörüne gir, HTML dosyalarını <code>www/</code> altına koy:</p>
-      <div class="code-block"><button class="copy-btn" data-copy="mkdir www&#10;cp index.html www/&#10;npm i @capacitor/core @capacitor/cli @capacitor/android&#10;npx cap add android&#10;npx cap sync android">Kopyala</button>mkdir www
+      <h3>⚡ Capacitor (Hibrit)</h3>
+      <p class="dim">HTML'yi Android/iOS uygulamasına paketler. En esnek yol.</p>
+      <div class="code-block"><button class="cp" data-cp="npm init @capacitor/app">Kopyala</button>npm init @capacitor/app</div>
+      <p class="dim">HTML dosyalarını <code>www/</code> altına koy:</p>
+      <div class="code-block"><button class="cp" data-cp="mkdir www&#10;cp index.html www/&#10;npm i @capacitor/core @capacitor/cli @capacitor/android&#10;npx cap add android&#10;npx cap sync android">Kopyala</button>mkdir www
 cp index.html www/
 npm i @capacitor/core @capacitor/cli @capacitor/android
 npx cap add android
 npx cap sync android</div>
-      <p>APK üretmek için:</p>
-      <div class="code-block"><button class="copy-btn" data-copy="cd android&#10;./gradlew assembleDebug">Kopyala</button>cd android
+      <p class="dim">APK üret:</p>
+      <div class="code-block"><button class="cp" data-cp="cd android&#10;./gradlew assembleDebug">Kopyala</button>cd android
 ./gradlew assembleDebug</div>
       <p class="dim">Çıktı: <code>android/app/build/outputs/apk/debug/app-debug.apk</code></p>`,
     webview: `
       <h3>🧩 Android WebView (Manuel)</h3>
-      <p>Kendi Android Studio projeni kur, HTML dosyalarını <code>assets/</code> altına koy.</p>
+      <p class="dim">Kendi Android Studio projene HTML dosyalarını <code>assets/</code> altına koy.</p>
       <p><b>MainActivity.java:</b></p>
-      <div class="code-block"><button class="copy-btn" data-copy="package com.example.aracm;&#10;&#10;import android.os.Bundle;&#10;import android.webkit.WebView;&#10;import android.webkit.WebViewClient;&#10;import androidx.appcompat.app.AppCompatActivity;&#10;&#10;public class MainActivity extends AppCompatActivity {&#10;  @Override protected void onCreate(Bundle b) {&#10;    super.onCreate(b);&#10;    WebView w = new WebView(this);&#10;    w.setWebViewClient(new WebViewClient());&#10;    w.getSettings().setJavaScriptEnabled(true);&#10;    w.getSettings().setDomStorageEnabled(true);&#10;    w.loadUrl(&quot;file:///android_asset/index.html&quot;);&#10;    setContentView(w);&#10;  }&#10;}">Kopyala</button>package com.example.aracm;
+      <div class="code-block"><button class="cp" data-cp="package com.example.myapp;&#10;&#10;import android.os.Bundle;&#10;import android.webkit.WebView;&#10;import android.webkit.WebViewClient;&#10;import androidx.appcompat.app.AppCompatActivity;&#10;&#10;public class MainActivity extends AppCompatActivity {&#10;  @Override protected void onCreate(Bundle b) {&#10;    super.onCreate(b);&#10;    WebView w = new WebView(this);&#10;    w.setWebViewClient(new WebViewClient());&#10;    w.getSettings().setJavaScriptEnabled(true);&#10;    w.getSettings().setDomStorageEnabled(true);&#10;    w.loadUrl(&quot;file:///android_asset/index.html&quot;);&#10;    setContentView(w);&#10;  }&#10;}">Kopyala</button>package com.example.myapp;
 
 import android.os.Bundle;
 import android.webkit.WebView;
@@ -501,318 +1007,65 @@ public class MainActivity extends AppCompatActivity {
     setContentView(w);
   }
 }</div>
-      <p><b>AndroidManifest.xml</b> içine:</p>
-      <div class="code-block"><button class="copy-btn" data-copy="&lt;uses-permission android:name=&quot;android.permission.INTERNET&quot; /&gt;">Kopyala</button>&lt;uses-permission android:name="android.permission.INTERNET" /&gt;</div>
-      <p class="dim">Derlemek için: <code>./gradlew assembleDebug</code> → APK üretilir.</p>`
+      <p><b>AndroidManifest.xml</b> (izin):</p>
+      <div class="code-block"><button class="cp" data-cp="&lt;uses-permission android:name=&quot;android.permission.INTERNET&quot; /&gt;">Kopyala</button>&lt;uses-permission android:name="android.permission.INTERNET" /&gt;</div>`
   };
-
   el.innerHTML = contents[mode] || contents.pwa;
-
-  el.querySelectorAll('[data-copy]').forEach(b=>{
-    b.addEventListener('click', ()=>{
-      copyToClipboard(b.dataset.copy).then(ok => toast(ok?'Kopyalandı':'Kopyalama başarısız', ok?'ok':'bad'));
-    });
+  el.querySelectorAll('[data-cp]').forEach(b=>{
+    b.onclick = () => {
+      copyText(b.dataset.cp).then(ok => toast(ok?'Kopyalandı':'Başarısız', ok?'ok':'bad'));
+    };
   });
 }
 
-function buildManifest(){
-  const p = A.pwa;
-  const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="96" fill="${p.iconBg}"/><text x="50%" y="55%" font-size="280" text-anchor="middle" dominant-baseline="middle">${p.iconEmoji}</text></svg>`;
-  return {
-    name: p.name,
-    short_name: p.short,
-    description: p.desc,
-    start_url: p.startUrl,
-    scope: './',
-    display: p.display,
-    orientation: 'portrait',
-    background_color: p.bg,
-    theme_color: p.theme,
-    lang: 'tr',
-    icons: [
-      { src:'icon.svg', sizes:'any', type:'image/svg+xml', purpose:'any' },
-      { src:'icon-maskable.svg', sizes:'any', type:'image/svg+xml', purpose:'maskable' }
-    ],
-    _iconSvg: iconSvg
+/* APK ZIP indirme */
+$('apkZipHtml').onclick = async () => {
+  if(!window.JSZip) return toast('JSZip yüklenemedi','bad');
+  if(!needFile()) return;
+  askJs();
+  const R = runAll();
+  const z = new JSZip();
+  Object.keys(R.res).forEach(f => z.file(f, R.res[f].out));
+  const blob = await z.generateAsync({type:'blob'});
+  dl(proj.name + '-html.zip', blob);
+  $('apkZipMsg').textContent = '✅ Sadece HTML ZIP indirildi.';
+};
+
+$('apkZipPwa').onclick = async () => {
+  if(!window.JSZip) return toast('JSZip yüklenemedi','bad');
+  if(!needFile()) return;
+  askJs();
+  const R = runAll();
+  const f = mainHtmlName();
+  if(!f) return toast('HTML dosyası yok','bad');
+
+  // PWA paketi
+  let h = R.res[f].out;
+  const nm = (proj.name || 'Uygulama').slice(0,40);
+  const sh = nm.slice(0,12);
+  const col = '#b3000f';
+  const ch = '🎮';
+  const tags = '<link rel="manifest" href="manifest.webmanifest">\n<meta name="theme-color" content="'+col+'">\n<link rel="icon" href="icon-192.png">\n<link rel="apple-touch-icon" href="icon-192.png">';
+  const reg = '<\u0073cript>if("serviceWorker"in navigator)addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});<\/script>';
+  if(!/rel=["']manifest["']/i.test(h)) h = /<\/head>/i.test(h) ? h.replace(/<\/head>/i, tags + '\n</head>') : tags + h;
+  if(!/serviceWorker\.register/.test(h)) h = /<\/body>/i.test(h) ? h.replace(/<\/body>/i, reg + '\n</body>') : h + reg;
+
+  const man = {
+    name: nm, short_name: sh, start_url: './', display: 'standalone',
+    background_color: '#111111', theme_color: col,
+    icons: [{src:'icon-192.png',sizes:'192x192',type:'image/png'},{src:'icon-512.png',sizes:'512x512',type:'image/png'}]
   };
-}
+  const z = new JSZip();
+  z.file('index.html', h);
+  z.file('manifest.webmanifest', JSON.stringify(man, null, 2));
+  z.file('sw.js', SWT('app-v1'));
+  z.file('icon-192.png', await iconBlob(192, ch, col));
+  z.file('icon-512.png', await iconBlob(512, ch, col));
+  const blob = await z.generateAsync({type:'blob'});
+  dl(proj.name + '-pwa.zip', blob);
+  $('apkZipMsg').textContent = '✅ PWA ZIP indirildi (manifest + sw.js + ikonlar). Bir sunucuya at, sonra PWABuilder ile APK üret.';
+};
 
-function buildServiceWorker(){
-  return '// Araç-m tarafından oluşturuldu\n'
-    + "const CACHE = '" + A.pwa.cacheName + "';\n"
-    + "const ASSETS = ['./','./index.html','./manifest.json','./icon.svg'];\n\n"
-    + "self.addEventListener('install', e => {\n"
-    + "  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));\n"
-    + "});\n\n"
-    + "self.addEventListener('activate', e => {\n"
-    + "  e.waitUntil(caches.keys().then(keys =>\n"
-    + "    Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))\n"
-    + "  ).then(() => self.clients.claim()));\n"
-    + "});\n\n"
-    + "self.addEventListener('fetch', e => {\n"
-    + "  const req = e.request;\n"
-    + "  if (req.method !== 'GET') return;\n"
-    + "  if (new URL(req.url).origin !== location.origin) return;\n"
-    + "  e.respondWith(fetch(req).then(res => {\n"
-    + "    const copy = res.clone();\n"
-    + "    caches.open(CACHE).then(c => c.put(req, copy));\n"
-    + "    return res;\n"
-    + "  }).catch(() => caches.match(req).then(m => m || caches.match('./index.html'))));\n"
-    + "});\n";
-}
-
-function buildIndexHtml(){
-  if(!A.pwa.includeIndex) return null;
-  const c = A.html.code;
-  return '<!DOCTYPE html>\n<html lang="tr">\n<head>\n<meta charset="UTF-8">\n'
-    + '<meta name="viewport" content="width=device-width,initial-scale=1">\n'
-    + '<title>' + esc(A.pwa.name) + '</title>\n'
-    + '<meta name="theme-color" content="' + A.pwa.theme + '">\n'
-    + '<link rel="manifest" href="manifest.json">\n'
-    + '<link rel="icon" href="icon.svg" type="image/svg+xml">\n'
-    + '<style>\n' + c.css + '\n</style>\n</head>\n<body>\n' + c.html
-    + '\n<script>if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(()=>{});}<\/script>\n'
-    + '<script>\n' + c.js + '\n<\/script>\n</body>\n</html>';
-}
-
-function generatePwaFiles(){
-  const manifest = buildManifest();
-  const sw = buildServiceWorker();
-  const html = buildIndexHtml();
-  const files = {
-    'manifest.json': JSON.stringify(manifest, null, 2),
-    'sw.js': sw,
-    'icon.svg': manifest._iconSvg,
-    'icon-maskable.svg': manifest._iconSvg
-  };
-  if(html) files['index.html'] = html;
-  return files;
-}
-
-function showPwaOutput(){
-  const files = generatePwaFiles();
-  const output = $('pwaOutput'), list = $('pwaFiles');
-  if(!output || !list) return;
-
-  list.innerHTML = Object.keys(files).map(name=>{
-    const content = files[name];
-    const preview = content.length > 3000 ? content.slice(0,3000) + '\n... (devamı)' : content;
-    return `<details><summary>📄 ${name} <span class="dim">(${content.length} bayt)</span></summary>`
-      + `<div class="code-block"><button class="copy-btn" data-copy="${esc(content)}">Kopyala</button>${esc(preview)}</div>`
-      + `</details>`;
-  }).join('');
-
-  output.style.display = 'block';
-
-  list.querySelectorAll('[data-copy]').forEach(b=>{
-    b.addEventListener('click', ()=>{
-      copyToClipboard(b.dataset.copy).then(ok => toast(ok?'Kopyalandı':'Başarısız', ok?'ok':'bad'));
-    });
-  });
-  toast('Manifest + SW oluşturuldu', 'ok');
-}
-
-async function downloadPwaZip(){
-  if(typeof JSZip === 'undefined'){ toast('JSZip yüklenemedi, tek tek kopyalayın', 'bad'); return; }
-  const zip = new JSZip();
-  const files = generatePwaFiles();
-  for(const name in files) zip.file(name, files[name]);
-  zip.file('README.txt',
-    'Araç-m PWA paketi\n\n' +
-    'Yükleme:\n' +
-    '1. Bu klasördeki dosyaları bir web sunucusuna atın.\n' +
-    '2. https://www.pwabuilder.com/ adresine gidip URL girin.\n' +
-    '3. Android APK / AAB indirin.\n\n' +
-    'Dosyalar:\n' +
-    '- manifest.json: PWA kimlik ve ikonları\n' +
-    '- sw.js: Service worker (offline)\n' +
-    '- index.html: Ana sayfa\n' +
-    '- icon.svg: Uygulama ikonu\n'
-  );
-  const blob = await zip.generateAsync({type:'blob'});
-  download('aracm-pwa-' + Date.now() + '.zip', blob, 'application/zip');
-  toast('PWA paketi indirildi', 'ok');
-}
-
-function bindPwaEvents(){
-  const fields = {
-    pwaName:'name', pwaShort:'short', pwaDesc:'desc',
-    pwaStart:'startUrl', pwaTheme:'theme', pwaBg:'bg',
-    pwaDisplay:'display', pwaIconEmoji:'iconEmoji'
-  };
-  for(const id in fields){
-    const el = $(id); if(!el) continue;
-    const handler = () => { A.pwa[fields[id]] = el.value; };
-    el.addEventListener('input', handler);
-    el.addEventListener('change', handler);
-  }
-
-  $('pwaIncludeIndex')?.addEventListener('change', e => { A.pwa.includeIndex = e.target.checked; });
-
-  $('btnGenerate')?.addEventListener('click', showPwaOutput);
-  $('btnDownloadPwa')?.addEventListener('click', downloadPwaZip);
-  $('btnOpenPwabuilder')?.addEventListener('click', () => window.open('https://www.pwabuilder.com/', '_blank', 'noopener'));
-
-  $('btnDownloadZip')?.addEventListener('click', async () => {
-    if(typeof JSZip === 'undefined'){ toast('JSZip yüklenemedi', 'bad'); return; }
-    const zip = new JSZip();
-    zip.file('index.html', buildIndexHtml() || buildDoc());
-    zip.file('manifest.json', JSON.stringify(buildManifest(), null, 2));
-    zip.file('sw.js', buildServiceWorker());
-    zip.file('icon.svg', buildManifest()._iconSvg);
-    zip.file('README.txt', 'Araç-m ile oluşturulan web sitesi. PWA/APK için kullanılabilir.');
-    const blob = await zip.generateAsync({type:'blob'});
-    download('aracm-site-' + Date.now() + '.zip', blob, 'application/zip');
-    toast('Site ZIP olarak indirildi', 'ok');
-  });
-
-  document.querySelectorAll('[data-apk]').forEach(b=>{
-    b.addEventListener('click', ()=>{
-      A.apk.mode = b.dataset.apk;
-      render();
-    });
-  });
-
-  renderApkContent();
-}
-
-/* ==================== REHBER ==================== */
-function renderGuide(){
-  return `
-  <div class="card">
-    <h2>📖 HTML Görüntüleyici Nasıl Kullanılır?</h2>
-    <ol class="steps">
-      <li><b>HTML / CSS / JS</b> sekmelerinden birini seç, kodu yaz veya yapıştır.</li>
-      <li><b>Çalıştır</b> butonuna bas veya kutuya yazınca otomatik güncellenir.</li>
-      <li><b>Tam Ekran</b> ile önizlemeyi büyüt.</li>
-      <li><b>Dosya Yükle</b> ile hazır bir .html/.css/.js dosyası seç.</li>
-      <li><b>İndir</b> ile tek bir HTML dosyası olarak kaydet.</li>
-    </ol>
-    <p class="dim">💡 <b>Güvenli mod</b> önerilir. Tam mod sadece kendi yazdığın kod için kullan.</p>
-  </div>
-
-  <div class="card">
-    <h2>📱 APK'ya Dönüştürme — Adım Adım</h2>
-
-    <h3>Yöntem 1: PWABuilder (En Kolay)</h3>
-    <ol class="steps">
-      <li>HTML Görüntüleyici'de uygulamanı hazırla.</li>
-      <li>PWA sekmesinde manifest bilgilerini doldur → <b>Manifest + SW Oluştur</b>.</li>
-      <li><b>PWA ZIP İndir</b> ile dosyaları indir.</li>
-      <li>ZIP'i GitHub Pages, Netlify veya Vercel'e yükle.</li>
-      <li><a href="https://www.pwabuilder.com/" target="_blank" rel="noopener" style="color:var(--gold)">pwabuilder.com</a> → URL gir → Android seç → APK indir.</li>
-    </ol>
-
-    <h3>Yöntem 2: Bubblewrap (CLI)</h3>
-    <ol class="steps">
-      <li>Node.js kur.</li>
-      <li>Terminalde: <code>npm i -g @bubblewrap/cli</code></li>
-      <li>PWA'nın yayında olduğu URL ile başlat: <code>bubblewrap init --manifest https://SITEN/manifest.json</code></li>
-      <li><code>bubblewrap build</code> ile APK üret.</li>
-    </ol>
-
-    <h3>Yöntem 3: Capacitor</h3>
-    <ol class="steps">
-      <li>Node.js + Android Studio kur.</li>
-      <li><code>npm init @capacitor/app</code></li>
-      <li>HTML dosyalarını <code>www/</code> klasörüne kopyala.</li>
-      <li><code>npx cap add android &amp;&amp; npx cap sync</code></li>
-      <li><code>cd android &amp;&amp; ./gradlew assembleDebug</code></li>
-    </ol>
-
-    <h3>Yöntem 4: Android WebView</h3>
-    <ol class="steps">
-      <li>Android Studio'da yeni proje aç.</li>
-      <li><code>assets/</code> klasörüne HTML dosyalarını koy.</li>
-      <li>MainActivity'de WebView ile yükle (PWA sekmesindeki kodu kopyala).</li>
-      <li>Derle → APK.</li>
-    </ol>
-  </div>
-
-  <div class="card">
-    <h2>❓ Sık Sorulanlar</h2>
-
-    <details>
-      <summary>APK dosyasını telefona nasıl kurarım?</summary>
-      <p>APK dosyasını telefona indir. Ayarlar → Güvenlik → Bilinmeyen kaynaklara izin ver. Dosya yöneticisinden APK'ya dokun → Yükle. Play Store dışı uygulama uyarısı çıkarsa "Yine de yükle" seç.</p>
-    </details>
-
-    <details>
-      <summary>Play Store'a nasıl yüklerim?</summary>
-      <p>Play Store'a <b>.apk</b> değil <b>.aab</b> (Android App Bundle) yüklenir. PWABuilder ve Bubblewrap .aab üretir. Google Play Console'da geliştirici hesabı açman gerekir (tek seferlik 25$).</p>
-    </details>
-
-    <details>
-      <summary>PWABuilder hata verirse?</summary>
-      <p>Önce PWA'nın gerçekten çalıştığından emin ol: HTTPS'de olmalı, manifest.json geçerli olmalı, service worker kayıtlı olmalı. Sorun devam ederse Bubblewrap'ı dene.</p>
-    </details>
-
-    <details>
-      <summary>HTML Görüntüleyici neden iframe kullanıyor?</summary>
-      <p>Güvenlik için. Önizlenen kod ana sayfaya erişemez (güvenli modda). <code>sandbox</code> özelliği tarayıcı tarafından uygulanır ve atlatılamaz.</p>
-    </details>
-
-    <details>
-      <summary>Ücretsiz mi?</summary>
-      <p>Bu araç tamamen ücretsiz. PWABuilder, Bubblewrap, Capacitor hepsi açık kaynak. Sadece Play Store'a yükleme ücretli (25$).</p>
-    </details>
-  </div>
-
-  <div class="card">
-    <h2>⚠️ Sınırlamalar</h2>
-    <ul>
-      <li>Tarayıcı içinden doğrudan APK üretilemez — harici bir araç (PWABuilder vb.) gerekir.</li>
-      <li>HTML Görüntüleyici <code>allow-same-origin</code> olmadan <code>localStorage</code> erişimini engeller (güvenli modda).</li>
-      <li>Service worker sadece HTTPS veya localhost'ta çalışır (file:// ile çalışmaz).</li>
-      <li>APK'yı telefona kurmak için "bilinmeyen kaynak" iznini açman gerekir.</li>
-    </ul>
-  </div>`;
-}
-
-/* ==================== GLOBAL EVENT DELEGATION ==================== */
-document.addEventListener('click', e => {
-  const navBtn = e.target.closest('#nav button[data-tab]');
-  if(navBtn){
-    A.tab = navBtn.dataset.tab;
-    location.hash = A.tab;
-    render();
-    window.scrollTo(0,0);
-    return;
-  }
-
-  const editorBtn = e.target.closest('[data-editor-tab]');
-  if(editorBtn){
-    if($('editor')) A.html.code[A.html.editorTab] = $('editor').value;
-    A.html.editorTab = editorBtn.dataset.editorTab;
-    render();
-    return;
-  }
-
-  const apkBtn = e.target.closest('[data-apk]');
-  if(apkBtn){
-    A.apk.mode = apkBtn.dataset.apk;
-    render();
-    return;
-  }
-});
-
-/* ==================== BAŞLAT ==================== */
-function init(){
-  if(location.hash){
-    const t = location.hash.replace('#','');
-    if(['html','pwa','guide'].includes(t)) A.tab = t;
-  }
-  render();
-  window.addEventListener('hashchange', () => {
-    const t = location.hash.replace('#','');
-    if(['html','pwa','guide'].includes(t)){
-      A.tab = t;
-      render();
-    }
-  });
-}
-
-init();
 </script>
 </body>
 </html> 
