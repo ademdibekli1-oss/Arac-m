@@ -1065,9 +1065,7 @@ $('apkZipPwa').onclick = async () => {
   dl(proj.name + '-pwa.zip', blob);
   $('apkZipMsg').textContent = '✅ PWA ZIP indirildi (manifest + sw.js + ikonlar). Bir sunucuya at, sonra PWABuilder ile APK üret.';
 };
-
-</script>
-  // URL ile şablon içe aktarma
+/* === URL ile şablon içe aktarma === */
 (function(){
   const p = new URLSearchParams(location.search);
   const imp = p.get('import');
@@ -1092,8 +1090,11 @@ $('apkZipPwa').onclick = async () => {
     save();
     refreshAll();
     show('v-patch');
-    alert('✅ "'+n+'" setine '+arr.length+' şablon aktarıldı.');
+    // URL'deki import parametresini temizle (sayfa yenilenince tekrar aktarılmasın)
+    try { history.replaceState(null, '', location.pathname); } catch(e){}
+    setTimeout(()=>alert('✅ "'+n+'" setine '+arr.length+' şablon aktarıldı.'), 100);
   }catch(e){ console.warn('Şablon aktarılamadı:', e); }
 })();
+</script>
 </body>
 </html> 
