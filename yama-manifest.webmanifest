@@ -1,0 +1,17 @@
+{
+  "name": "Güvenli Yama Aracı",
+  "short_name": "Yama",
+  "description": "HTML dosyalarına güvenli yama uygulayan, test eden ve paketleyen araç",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0e15",
+  "theme_color": "#0a0e15",
+  "lang": "tr",
+  "icons": [
+    {"src": "yama-icon-192.png?v=1", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "yama-icon-512.png?v=1", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "yama-icon-maskable-512.png?v=1", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}
