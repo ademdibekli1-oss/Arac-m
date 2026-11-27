@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Güvenli Yama Aracı</title>
+<link rel="stylesheet" href="app.css?v=8">
+<link rel="manifest" href="yama-manifest.webmanifest">
+<meta name="theme-color" content="#0a0e15">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="icon" type="image/png" sizes="32x32" href="yama-favicon-32.png?v=1">
+<link rel="icon" type="image/png" sizes="192x192" href="yama-icon-192.png?v=1">
+<link rel="apple-touch-icon" sizes="180x180" href="yama-apple-touch-icon.png?v=1">
+</head>
+<body>
+<header><span><b>🛡️ Güvenli Yama Aracı</b> <span class="tag">v8</span></span><span><span class="dim" id="hInfo">dosya yok</span><button id="thBtn" title="Tema">🌓</button></span></header>
+<main>
+
+<section id="v-file">
+  <div class="card"><h3>1 · Dosya</h3>
+    <div class="drop" id="drop">📁 <b>index.html</b> veya <b>.zip</b> seç<br><span class="dim">Temiz (yamasız) dosya en iyisidir</span></div>
+    <input type="file" id="fileIn" accept=".html,.htm,.zip,.js,.css" class="hidden">
+    <div id="fileInfo"></div>
+  </div>
+</section>
+
+<section id="v-html" class="hidden">
+  <div class="card">
+    <h3>🖥️ HTML Görüntüleyici</h3>
+    <p class="dim">HTML / CSS / JS kodunu yaz, canlı önizle. Dosya yükleyebilir veya hazır örnekle başlayabilirsin.</p>
+    <div class="edt-tabs" id="edtTabs">
+      <button class="on" data-edt="html">HTML</button>
+      <button data-edt="css">CSS</button>
+      <button data-edt="js">JS</button>
+    </div>
+    <textarea class="edt-area" id="edtArea" spellcheck="false"></textarea>
+    <div class="row" style="margin-top:8px">
+      <label style="margin:0">Sandbox:</label>
+      <select id="edtSandbox" style="max-width:280px">
+        <option value="safe">🔒 Güvenli (allow-scripts)</option>
+        <option value="full">⚠️ Tam (allow-scripts + allow-same-origin)</option>
+      </select>
+    </div>
+    <div class="row">
+      <button class="btn p" id="edtRender">▶️ Çalıştır</button>
+      <button class="btn" id="edtFile">📂 Dosya</button>
+      <button class="btn" id="edtDownload">💾 İndir</button>
+      <button class="btn" id="edtCopy">📋 Kopyala</button>
+      <button class="btn d" id="edtClear">🗑️ Temizle</button>
+      <input type="file" id="edtFileIn" accept=".html,.htm,.css,.js,.txt" class="hidden">
+    </div>
+    <div class="pv-wrap" id="edtWrap">
+      <div class="pv-controls">
+        <button id="edtFullscreen">⛶ Tam Ekran</button>
+        <button id="edtReload">🔄</button>
+      </div>
+      <iframe class="pv-frame" id="edtFrame" sandbox="allow-scripts" title="Önizleme"></iframe>
+    </div>
+  </div>
+  <div class="card">
+    <h3>💡 İpuçları</h3>
+    <div class="dim">
+      <p><b>Güvenli mod</b>: Önizlenen kod ana sayfaya erişemez. Test için önerilir.</p>
+      <p><b>Tam mod</b>: Kod kendi <code>localStorage</code>'ını kullanabilir. Sadece güvendiğin kod için.</p>
+      <p>Dosya yüklersen uzantıya göre doğru sekmeye yerleşir (HTML/CSS/JS).</p>
+      <p>İndirdiğin dosya <code>preview.html</code> olarak tarayıcıda açılır.</p>
+    </div>
+  </div>
+</section>
+
+<section id="v-patch" class="hidden">
+  <div class="card"><h3>Yama seti</h3>
+    <div class="row"><select id="setSel" style="flex:1"></select><button class="btn" id="setNew">+ Yeni</button><button class="btn" id="setDel">Sil</button></div>
+    <div class="row"><button class="btn" id="btnUndo">↩️ Geri al</button><button class="btn" id="btnExport">📤 Dışa aktar</button><label class="btn" style="margin:4px 0">📥 İçe aktar<input type="file" id="jsonIn" accept=".json" class="hidden"></label></div>
+  </div>
+  <div class="card"><h3>Yamalar</h3><div id="pList"></div><button class="btn p" id="pNew">+ Yeni yama</button></div>
+  <div class="card hidden" id="pForm"><h3 id="pFormT">Yama</h3>
+    <label>Ad</label><input id="fName" maxlength="60" placeholder="Örn: Hata yakalayıcı">
+    <label>Hedef dosya (örn: index.html, *.css, *)</label><input id="fTarget" value="*.html">
+    <label>Ne yapsın?</label>
+    <select id="fAct">
+      <option value="ins-after">Bir metnin SONRASINA ekle</option>
+      <option value="ins-before">Bir metnin ÖNCESİNE ekle</option>
+      <option value="replace">Metni değiştir</option>
+      <option value="regex">Regex ile değiştir</option>
+      <option value="js">Gelişmiş: JS ile dosyayı dönüştür (izin ister)</option>
+    </select>
+    <div id="gKind"><label>Eklenen şey nedir?</label>
+      <select id="fKind"><option value="js">JavaScript (otomatik &lt;script&gt; ile sarılır)</option><option value="css">CSS (otomatik &lt;style&gt; ile sarılır)</option><option value="html">HTML (olduğu gibi)</option></select></div>
+    <div id="gFind"><label id="lFind">Aranacak metin (örn: &lt;/body&gt;)</label><input id="fFind" placeholder="&lt;/body&gt;"></div>
+    <label id="lCont">İçerik</label><textarea id="fCont" spellcheck="false"></textarea>
+    <div id="gAll" class="hidden"><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="fAll" style="width:auto"> Birden çok yerde eşleşirse hepsini değiştir</label></div>
+    <div id="fMsg" class="dim"></div>
+    <button class="btn" id="fFindBtn">🔎 Bul ve göster</button><div id="fFound" class="dim"></div>
+    <button class="btn g" id="fSave">💾 Kaydet</button><button class="btn" id="fCancel">Vazgeç</button>
+  </div>
+</section>
+
+<!-- ====== YENİ: ŞABLON GALERİSİ ====== -->
+<section id="v-gallery" class="hidden">
+  <div class="card">
+    <h3>📚 Hazır Şablonlar</h3>
+    <p class="dim">Tek tıkla mevcut yama setine ekle. Sonra Yamalar sekmesinden düzenleyebilirsin.</p>
+    <div class="row" style="margin-top:8px">
+      <input type="text" id="galQ" placeholder="Ara: hata, tema, mobil, toast…" style="flex:1">
+    </div>
+    <div class="row">
+      <select id="galTier" style="flex:1">
+        <option value="all">Tümü</option>
+        <option value="free">🆓 Ücretsiz</option>
+        <option value="premium">👑 Premium</option>
+      </select>
+      <select id="galCat" style="flex:1">
+        <option value="all">Tüm kategoriler</option>
+      </select>
+    </div>
+    <div class="gal-tabs" id="galTabs">
+      <button class="on" data-gal="patches">🛠 Yama Şablonları</button>
+      <button data-gal="snippets">🧩 Kod Parçaları</button>
+    </div>
+    <div id="galList"></div>
+  </div>
+</section>
+
+<section id="v-apk" class="hidden">
+  <div class="card">
+    <h3>📱 APK Dönüştürücü</h3>
+    <p class="dim">HTML'yi APK'ya dönüştürmek için 4 yol var. Her biri için adım adım rehber ve hazır komutlar aşağıda. <b>Tarayıcıdan doğrudan APK üretilemez</b> — harici bir araç gerekir.</p>
+  </div>
+  <div class="card">
+    <div class="apk-modes" id="apkModes">
+      <button class="on" data-apk="pwa">🥇 PWABuilder</button>
+      <button data-apk="bubble">🫧 Bubblewrap</button>
+      <button data-apk="capacitor">⚡ Capacitor</button>
+      <button data-apk="webview">🧩 WebView</button>
+    </div>
+    <div id="apkContent"></div>
+  </div>
+  <div class="card">
+    <h3>📥 ZIP Olarak İndir</h3>
+    <p class="dim">Yüklü HTML dosyasını tek başına ya da PWA paketiyle birlikte ZIP olarak indir.</p>
+    <div class="row">
+      <button class="btn" id="apkZipHtml">📦 Sadece HTML ZIP</button>
+      <button class="btn g" id="apkZipPwa">📦 PWA ZIP (manifest + sw.js)</button>
+    </div>
+    <div id="apkZipMsg" class="dim"></div>
+  </div>
+</section>
+
+<section id="v-prev" class="hidden">
+  <div class="card"><h3>Sonuç raporu</h3><div id="report" class="dim">—</div>
+    <div class="row"><button class="btn p" id="btnRun">▶️ Uygula ve önizle</button><button class="btn" id="btnDiffNow">🔍 Değişiklikleri göster</button><button class="btn" id="btnStrip">🧹 Dosyadaki yama izlerini sök</button></div></div>
+  <div class="card"><h3>Önizleme</h3><div id="errBox" class="dim">Önizleme hataları burada görünür.</div><label style="display:flex;gap:8px;align-items:center;margin:6px 0"><input type="checkbox" id="pvFull" style="width:auto"> Tam mod (kalıcı depolama; yalnızca güvendiğin dosya için)</label><p class="dim" style="margin:0 0 6px;font-size:12px">Varsayılan güvenli modda sayfa aracın depolamasına ve anahtarlarına erişemez; localStorage geçici bellekte çalışır.</p><iframe id="frame" sandbox="allow-scripts"></iframe></div>
+</section>
+
+<section id="v-out" class="hidden">
+  <div class="card"><h3>İndir</h3>
+    <p class="dim">Bu işlem yamaları <b>özgün dosyaya</b> uygular (üst üste binmez). Rapor temiz değilse indirmeden önce uyarır.</p>
+    <label>Çıktı dosya adı (boşsa otomatik: ad-yamali)</label><input id="dlName" placeholder="örn: index.html veya proje" autocomplete="off" maxlength="80">
+    <button class="btn g" id="dlOne">⬇️ Yamalı dosyayı indir</button>
+    <button class="btn" id="dlZip">⬇️ ZIP olarak indir</button>
+    <div id="dlMsg" class="dim"></div></div>
+</section>
+
+<section id="v-tools" class="hidden">
+  <div class="card"><h3>Araçlar</h3>
+    <div class="row">
+      <button class="btn p" data-go="v-html">🖥️ HTML Görüntüleyici</button>
+      <button class="btn p" data-go="v-apk">📱 APK Dönüştürücü</button>
+      <button class="btn p" data-go="v-diff">🔍 Fark (karşılaştır)</button>
+      <button class="btn p" data-go="v-bulk">🔁 Toplu değiştir</button>
+      <button class="btn p" data-go="v-pwa">📦 Uygulama paketleyici</button>
+      <button class="btn p" data-go="v-test">🧪 Test paneli</button>
+      <button class="btn p" data-go="v-store">💾 Kayıt yedekleyici</button>
+    </div></div>
+  <div class="card"><h3>Yayın</h3><div class="row">
+      <button class="btn p" data-go="v-audit">🔎 Yayın öncesi denetim</button>
+      <button class="btn p" data-go="v-gh">🐙 GitHub'a yükle</button>
+      <button class="btn p" data-go="v-live">🌐 Canlı site kontrolü</button>
+      <button class="btn p" data-go="v-log">📝 Değişiklik günlüğü</button></div></div>
+  <div class="card"><h3>Dosya bakımı</h3><div class="row">
+      <button class="btn p" data-go="v-split">✂️ Dosyayı parçalara böl</button>
+      <button class="btn p" data-go="v-img">🖼 Görselleri küçült</button>
+      <button class="btn p" data-go="v-hist">🕘 Yama geçmişi</button></div></div>
+</section>
+
+<section id="v-diff" class="hidden">
+  <div class="card"><h3>🔍 Sürüm karşılaştırıcı</h3>
+    <p class="dim">İki dosyayı karşılaştır. Seçenek 1: yüklü dosya ile yamalı sonuç. Seçenek 2: iki ayrı dosya.</p>
+    <button class="btn" id="dfSelf">Yüklü dosya ↔ yamalı sonuç</button>
+    <label>Ya da iki dosya seç (eski → yeni)</label>
+    <input type="file" id="dfA"><input type="file" id="dfB" style="margin-top:6px">
+    <button class="btn p" id="dfGo">Karşılaştır</button>
+    <div id="dfSum" class="dim" style="margin-top:8px"></div><div id="dfOut"></div></div>
+</section>
+
+<section id="v-bulk" class="hidden">
+  <div class="card"><h3>🔁 Toplu metin değiştirici</h3>
+    <p class="dim">Yüklü bütün dosyalarda bir metni değiştirir. Doğrudan dosyayı bozmaz: önce kaç yerde geçtiğini gösterir, sonra <b>geri alınabilir yama</b> olarak ekler.</p>
+    <label>Aranan</label><input id="bkFind"><label>Yeni</label><input id="bkRep">
+    <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="bkRe" style="width:auto"> Regex</label>
+    <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="bkCase" style="width:auto"> Büyük/küçük harf duyarlı</label>
+    <button class="btn" id="bkCount">Say</button><button class="btn g" id="bkAdd">Yama olarak ekle</button>
+    <div id="bkOut" class="dim"></div></div>
+</section>
+
+<section id="v-pwa" class="hidden">
+  <div class="card"><h3>📦 Uygulama paketleyici (PWA)</h3>
+    <p class="dim">Yüklü HTML'e uygulama olarak yüklenebilme dosyalarını üretir: manifest, çevrimdışı çalışma dosyası (sw.js), ikonlar ve gerekli etiketler.</p>
+    <label>Uygulama adı</label><input id="pwName" value="Uygulamam">
+    <label>Kısa ad</label><input id="pwShort" value="Uygulama" maxlength="12">
+    <label>Tema rengi</label><input id="pwColor" type="color" value="#b3000f" style="height:44px">
+    <label>İkon simgesi (emoji ya da harf)</label><input id="pwIcon" value="🎮" maxlength="2">
+    <button class="btn g" id="pwGo">📦 Paketi oluştur (ZIP)</button>
+    <button class="btn p" id="pwToApk">📱 Bu paketle APK üret →</button>
+    <div id="pwOut" class="dim"></div></div>
+</section>
+
+<section id="v-test" class="hidden">
+  <div class="card"><h3>🧪 Test paneli</h3>
+    <p class="dim">Özgün dosyayı ve yamalı sonucu çalıştırıp aynı kontrolleri yapar.</p>
+    <button class="btn p" id="tsGo">▶️ Testi çalıştır</button>
+    <div id="tsOut"></div></div>
+</section>
+
+<section id="v-store" class="hidden">
+  <div class="card"><h3>💾 Yerel kayıt yedekleyici</h3>
+    <p class="dim">Bu sayfayla <b>aynı adresteki</b> sitelerin localStorage kayıtlarını listeler, yedekler ve geri yükler.</p>
+    <div class="row"><button class="btn" id="stList">🔄 Listele</button><button class="btn p" id="stExp">📤 Yedeği indir</button>
+    <label class="btn" style="margin:4px 0">📥 Yedeği yükle<input type="file" id="stImp" accept=".json" class="hidden"></label></div>
+    <div id="stOut"></div></div>
+</section>
+
+<section id="v-ai" class="hidden">
+  <div class="card"><h3>🤖 YZ asistanı</h3>
+    <label>Sağlayıcı</label><select id="aiProv"></select>
+    <label>Adres (API base)</label><input id="aiBase">
+    <label>API anahtarı <span class="dim">(Ollama için gerekmez)</span></label><input id="aiKey" type="password" autocomplete="off" placeholder="sk-...">
+    <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="aiRem" style="width:auto"> Anahtarı bu cihazda hatırla</label>
+    <div class="row"><button class="btn p" id="aiList">🔎 Modelleri getir</button>
+      <label class="dim" style="margin:0"><input type="checkbox" id="aiCode" style="width:auto" checked> kodlama odaklı</label>
+      <label class="dim" style="margin:0"><input type="checkbox" id="aiFree" style="width:auto"> ücretsiz</label></div>
+    <input id="aiQ" placeholder="Modellerde ara" style="margin-top:6px">
+    <label>Model</label><select id="aiModelSel"></select><input id="aiModel" placeholder="ya da modeli elle yaz" style="margin-top:6px">
+    <div id="aiInfo" class="dim"></div>
+  </div>
+  <div class="card"><h3>Bağlam ekle</h3>
+    <div class="row"><input id="aiFind" placeholder="Dosyada ara (metin/regex)" style="flex:1"><button class="btn" id="aiAttF">📎 Dosyadan</button></div>
+    <div class="row"><button class="btn" id="aiAttP">📎 Yamalar</button><button class="btn" id="aiAttE">📎 Son hata/test</button><button class="btn" id="aiAttC">Bağlamı temizle</button></div>
+    <div id="aiCtx" class="dim">Ek yok.</div></div>
+  <div class="card"><h3>Sohbet</h3><div id="aiLog"></div>
+    <textarea id="aiIn" placeholder="Ne yapmak istiyorsun? (Türkçe yaz)" style="min-height:90px"></textarea>
+    <div class="row"><button class="btn g" id="aiSend">Gönder</button><button class="btn" id="aiStop">Durdur</button><button class="btn" id="aiClr">Sohbeti sil</button></div>
+  </div>
+</section>
+
+<section id="v-audit" class="hidden">
+  <div class="card"><h3>🔎 Yayın öncesi denetim</h3>
+    <p class="dim">Yamalı sonucu tarar: betik sözdizimi, tekrarlayan id, kırık bağlantı, eksik dosya, güvensiz (http) kaynak, ortada kalmış gizli anahtar, boyut ve en büyük gömülü görseller.</p>
+    <button class="btn p" id="auGo">▶️ Denetle</button><div id="auOut" style="margin-top:8px"></div>
+    <div class="row"><button class="btn" data-go="v-img">🖼 Görselleri küçült</button><button class="btn" data-go="v-split">✂️ Dosyayı böl</button></div></div>
+</section>
+<section id="v-live" class="hidden">
+  <div class="card"><h3>🌐 Canlı site kontrolü</h3>
+    <p class="dim">Yayındaki siteyi indirip yamalı sonuçla karşılaştırır: aynı mı, başlık ve önbellek sürümü uyuşuyor mu. (GitHub Pages siteleri okunabilir; bazı siteler engelleyebilir.)</p>
+    <label>Site adresi</label><input id="lvUrl" placeholder="https://kullanici.github.io/depo/" inputmode="url">
+    <button class="btn p" id="lvGo">🔍 Karşılaştır</button><div id="lvOut" style="margin-top:8px"></div></div>
+</section>
+<section id="v-gh" class="hidden">
+  <div class="card"><h3>🐙 GitHub’a yükle</h3>
+    <p class="dim">Yamalı dosyaları doğrudan depoya <b>tek bir commit</b> olarak yükler. Yalnızca değişenler seçili gelir. Anahtar (token) <b>hiçbir yere kaydedilmez</b>, sekme kapanınca silinir.</p>
+    <div class="row"><div style="flex:1"><label>Kullanıcı</label><input id="ghOwner" placeholder="ademdibekli1-oss" autocapitalize="off"></div><div style="flex:1"><label>Depo</label><input id="ghRepo" placeholder="Oyunum" autocapitalize="off"></div></div>
+    <div class="row"><div style="flex:1"><label>Dal</label><input id="ghBranch" value="main" autocapitalize="off"></div><div style="flex:1"><label>Alt klasör (isteğe bağlı)</label><input id="ghPrefix" placeholder="boş = kök" autocapitalize="off"></div></div>
+    <label>Anahtar (token)</label><input id="ghTok" type="password" autocomplete="off" placeholder="github_pat_…">
+    <p class="dim" style="font-size:12px">GitHub › Settings › Developer settings › Fine-grained tokens: yalnızca bu depo, <b>Contents: Read and write</b> yetkisi ver. Kısa süreli yap.</p>
+    <label>Commit mesajı</label><input id="ghMsg" value="Yama aracı ile güncelleme">
+    <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="ghAsIndex" style="width:auto" checked> Ana HTML başka adlıysa depoda <b>index.html</b> olarak yükle</label>
+    <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="ghBak" style="width:auto"> Yama setlerini de depoya yedekle (.yama/yedek.json)</label>
+    <div class="row"><label class="btn" style="margin:4px 0">📎 Ek dosya (ikon vb.)<input type="file" id="ghExtraIn" multiple class="hidden"></label></div><div id="ghExtraInfo" class="dim"></div>
+    <div class="row"><button class="btn p" id="ghPrep">1️⃣ Depoyla karşılaştır</button><button class="btn" id="ghRestore">☁️ Yedeği depodan al</button></div>
+    <div id="ghOut" style="margin-top:8px"></div>
+    <button class="btn g hidden" id="ghPush">2️⃣ Seçilenleri yükle</button><div id="ghOut2" style="margin-top:8px"></div></div>
+</section>
+<section id="v-split" class="hidden">
+  <div class="card"><h3>✂️ Dosyayı parçalara böl / birleştir</h3>
+    <p class="dim">Büyük tek dosyayı JS/CSS parçalarına ayırır (ZIP olarak). Hata satırından hangi parçaya baktığını gösterir. Ayrıca parçalı projeyi tek HTML’de birleştirir.</p>
+    <label>HTML dosyası</label><select id="spFile"></select>
+    <div class="row"><button class="btn p" id="spGo">✂️ Parçala (yamalı sonuçtan)</button><button class="btn" id="spMerge">🔗 Tek dosyada birleştir</button></div>
+    <div id="spOut" style="margin-top:8px"></div>
+    <div id="spMapBox" class="hidden"><label>Özgün dosyadaki satır numarası</label><input id="spLine" inputmode="numeric" placeholder="örn. 1523"><div id="spLineOut" class="ok"></div></div></div>
+</section>
+<section id="v-img" class="hidden">
+  <div class="card"><h3>🖼 Gömülü görselleri küçült</h3>
+    <p class="dim">HTML içine base64 gömülü PNG/JPEG/WebP görselleri bulur, boyutunu ve kalitesini düşürür. Uygulamadan önce otomatik geri dönüş noktası alınır.</p>
+    <label>HTML dosyası</label><select id="imFile"></select>
+    <button class="btn p" id="imScan">🔎 Görselleri bul</button><div id="imOut" style="margin-top:8px"></div>
+    <div id="imAct" class="hidden"><label>En uzun kenar</label><select id="imMax"><option value="0">Değiştirme</option><option value="1600">1600 px</option><option value="1024" selected>1024 px</option><option value="640">640 px</option><option value="256">256 px (ikon)</option></select>
+      <label>Kalite</label><select id="imQ"><option value="0.9">Yüksek (0.9)</option><option value="0.8" selected>Dengeli (0.8)</option><option value="0.6">Küçük dosya (0.6)</option></select>
+      <button class="btn g" id="imGo">⚙️ Küçült ve önizle</button><div id="imOut2" style="margin-top:8px"></div></div></div>
+</section>
+<section id="v-hist" class="hidden">
+  <div class="card"><h3>🕘 Yama geçmişi</h3>
+    <p class="dim">İndirme ve önizlemede otomatik, istersen elle “geri dönüş noktası” alınır (son 15). Bir şey bozulursa eski çalışan hale dönebilirsin. Kayıtlar yalnız bu cihazda durur.</p>
+    <div class="row"><button class="btn p" id="hsNow">📍 Şimdi nokta al</button><button class="btn d" id="hsClr">Tümünü sil</button></div>
+    <div id="hsOut" style="margin-top:8px"></div></div>
+</section>
+<section id="v-log" class="hidden">
+  <div class="card"><h3>📝 Değişiklik günlüğü</h3>
+    <p class="dim">Açık yamalardan sürüm notu üretir. İstersen YZ sekmesindeki sağlayıcıyla sade Türkçe özet de yazar.</p>
+    <label>Başlık</label><input id="lgTitle" value="Güncelleme">
+    <label>Şu noktayla karşılaştır (isteğe bağlı)</label><select id="lgBase"></select>
+    <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="lgAI" style="width:auto"> YZ ile sade özet ekle</label>
+    <button class="btn p" id="lgGo">📝 Oluştur</button><div id="lgMsg" class="dim"></div>
+    <textarea id="lgText" style="min-height:200px" placeholder="Burada görünür"></textarea>
+    <div class="row"><button class="btn" id="lgCopy">📋 Kopyala</button><button class="btn" id="lgDl">⬇️ .md indir</button></div></div>
+</section>
+
+<section id="v-team" class="hidden">
+  <div class="card"><h3>🧩 Fikirden yamaya</h3>
+    <p class="dim">Ne istediğini yaz. Takım sırayla <b>fikir üretir → eleştirir → kodu yazar → hata arar</b>; sonunda <b>hazır yamalar</b> çıkar. Yamalar dosyanda doğrulanır, sen seçip tek dokunuşla eklersin. Önce <b>Dosya</b> sekmesinden projeyi yükle.</p>
+    <textarea id="tmReq" style="min-height:90px" placeholder="Örn: Depo sayfasında ‘Hepsini sat’ düğmesini en üste al"></textarea>
+    <textarea id="tmCtx" style="min-height:56px;margin-top:6px" placeholder="İsteğe bağlı: hata mesajı, ekran notu, ek kod…"></textarea>
+    <div class="row"><button class="btn g" id="tmRun">▶ Takımı çalıştır</button><button class="btn" id="tmStop">■ Durdur</button></div>
+    <div id="tmSteps" class="dim" style="margin-top:6px"></div><div id="tmStat" class="dim"></div>
+  </div>
+  <div id="tmPatches"></div>
+  <div id="tmOut"></div>
+  <div class="card"><div class="row"><button class="btn" id="tmCopy">📋 Hepsini kopyala</button><button class="btn" id="tmClr">Temizle</button></div></div>
+  <div class="card"><h3>⚙️ Takım ayarları</h3><p class="dim">Her rol için sağlayıcı ve model seç. Anahtarı girmeyen rol çalışmaz; “Demo” anahtarsız deneme içindir.</p><div id="tmRoles"></div>
+    <label>Proje kuralları <span class="dim">(her role gönderilir)</span></label><textarea id="tmRules" style="min-height:120px"></textarea>
+    <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="tmAgent" style="width:auto"> 🔍 Ajan modu: Kodlayıcı ve Hata avcısı dosyada kendisi arasın (daha çok istek)</label>
+    <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="tmThink" style="width:auto"> 🧠 Düşünme modu (yalnız Anthropic modelleri; daha yavaş ve pahalı)</label>
+    <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="tmRem" style="width:auto"> Anahtarları bu cihazda hatırla</label>
+  </div>
+</section>
+</main>
+<nav>
+  <button data-v="v-file" class="on">📁<br>Dosya</button>
+  <button data-v="v-html">🖥️<br>HTML</button>
+  <button data-v="v-patch">🛠<br>Yamalar</button>
+  <button data-v="v-gallery">📚<br>Şablon</button>
+  <button data-v="v-ai">🤖<br>YZ</button>
+  <button data-v="v-team">🧩<br>Takım</button>
+  <button data-v="v-prev">👁<br>Önizle</button>
+  <button data-v="v-out">⬇️<br>İndir</button>
+  <button data-v="v-tools">⋯<br>Araçlar</button>
+</nav>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="app.js?v=8"></script>
+</body>
+</html> 
